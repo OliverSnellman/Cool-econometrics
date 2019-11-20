@@ -1,14 +1,17 @@
 ##########################################
 #####  Problems of life (and death)  #####
 ######  Oliver Snellman 20.11.2019  ######
+#######       Version: 1.0         #######
 ##########################################
 
 
 ## This is an unfinished document to help tackle the empirical excercise of Problem set 2.
+## Copy-paste the code on your R-Studio and execute lines by ctrl + enter.
 
 
-# Utilize packages needed
+# Utilize packages needed. If they are already installed once, only conduct the second of the lapply-commands.
 pkgs <- c("tidyverse", "data.table", "readxl", "httr")
+lapply(pkgs, install.packages, character.only=TRUE)
 lapply(pkgs, library, character.only=TRUE)
 
 # Set the working directory
@@ -20,15 +23,12 @@ par(mfrow=c(1,1)) # Reset the plotting settings
 
 #################### Advanced Econometrics 2, Excercise 2 #################### 
 
-# Download the data from https://sites.google.com/site/fumiohayashi/hayashi-econometrics/data-for-empirical
-
-library(readxl)
-library(httr)
+# Import the data straight from the website and save as a dataframe "data". "data" has 758 rows (observations) and 20 columns (variables)
 url<-'https://sites.google.com/site/fumiohayashi/hayashi-econometrics/data-for-empirical/grilic.xls'
 GET(url, write_disk(tf <- tempfile(fileext = ".xls")))
 data <- read_excel(tf, 1L)
 
-# OR if you have data already downloaded:
+# OR download the xls-file from https://sites.google.com/site/fumiohayashi/hayashi-econometrics/data-for-empirical and use the following:
 data <- read_xls("grilic.xls")
 
 # Variable names and respective column numbers
@@ -38,12 +38,12 @@ vars <- cbind(c(1:ncol(data)), names(data))
 
 # a)
 
-# Means and standard deviations for the variables
+# Calculate means and standard deviations for the variables
 means <- apply(X=data, MARGIN=2, FUN=mean)
 deviations <- apply(X=data, MARGIN=2, FUN=sd)
 
-# Correlation between IQ and S
-corr_iq_s <- cov(data[[8]],data[[13]])/sqrt(deviations[[8]]^2 * deviations[[13]]^2)
+# Calculate the correlation between IQ and S. Square brackets are used to choose the required columns from the matrix "data" 
+corr_iq_s <- cov(data[,8],data[,13])/sqrt(deviations[,8]^2 * deviations[,13]^2)
 
 # Generate year dummies for years 66-71 and 73
 year_dummy_generator <- function(input){
@@ -69,7 +69,7 @@ year_dummy_generator <- function(input){
 year_dummies <- year_dummy_generator(data[[10]])
 
 
-# cbind(data[[10]], as.matrix(year_dummies)) # Check whether correct
+# cbind(data[[10]], as.matrix(year_dummies)) # Check whether the one hot encoding was correct
 
 # Append the dataset with the new year dummy -variables
 data2 <- cbind(data, year_dummies)
@@ -86,7 +86,7 @@ schooling <- data2[[13]]
 iq <- data2[[8]]
 
 
-# Obtain regression coefficients
+## Obtain the regression coefficients
 
 # Old school
 x <- cbind(schooling, iq, data2[[15]], data2[[17]], data2[[1]], data2[[5]],
@@ -98,9 +98,9 @@ ordered <- cbind(log_wages, c(1:length(log_wages)), y_hat_b)
 ordered <- ordered[order(log_wages),]
 
 plot(ordered[,1])
-lines(ordered[,2], col="blue")
+lines(ordered[,2], col="blue") # Not working correctly yet
 
-# Loser way
+# OR the loser way
 model.b <- lm(log_wages ~ schooling + iq
             + data2[[15]] + data2[[17]] + data2[[1]] + data2[[5]]
             + data2[,21] + data2[[22]] + data2[[23]] + data2[[24]] + data2[[25]] + data2[[26]] + data2[[27]] -1, data2)
@@ -114,8 +114,10 @@ instr <- cbind(schooling, data2[[15]], data2[[17]], data2[[1]], data2[[5]],
                     data2[[21]], data2[[22]], data2[[23]], data2[[24]], data2[[25]], data2[[26]], data2[[27]],
                     data2[[7]], data2[[9]], data2[[3]], data2[[11]])
 
-b.instr <- solve(t(instr)%*%instr)%*%t(instr)%*%log_wages
-y_hat_instr <- instr%*%b.instr
+
+
+
+
 
 
 
