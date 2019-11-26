@@ -144,6 +144,12 @@ S_xy <- t(x) %*% log_wages
 theta_2SLS <- solve(t(S_xz) %*% solve(S_xx) %*% (S_xz)) %*% t(S_xz) %*% solve(S_xx) %*% (S_xy)
 y_hat <-  %*% theta_2SLS # What should the theta be multiplied with? If you made this far, you deserve a good champ medal even without the answer!
 
+
+# Crude try
+y_hat_onego <- x %*% solve(t(x) %*% x) %*% t(x) %*% z %*% solve(t(solve(t(x) %*% x) %*% t(x) %*% z) %*% solve(t(x) %*% x) %*% t(x) %*% z) %*% t(solve(t(x) %*% x) %*% t(x) %*% z) %*% y
+
+
+
 # Coefficients
 print(round(theta_2SLS, 4))
 
@@ -170,12 +176,6 @@ y_hat <- z_hat%*%theta_2sls
 # Coefficients
 print(round(theta_2sls, 4))
 
-solve(t(solve(t(x) %*% x) %*% t(x) %*% z) %*% solve(t(x) %*% x) %*% t(x) %*% z) %*% t(solve(t(x) %*% x) %*% t(x) %*% z) %*%y
-
-ts.plot(y)
-lines(y_hat, col="red")
-
-length(y)
 
 
 #####################################
