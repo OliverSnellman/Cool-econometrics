@@ -1,12 +1,13 @@
 ##########################################
 #####  Problems of life (and death)  #####
 ######  Oliver Snellman 20.11.2019  ######
-#######       Version: 1.2         #######
+#######       Version: 1.3         #######
 ##########################################
 
 
 ## This is an unfinished document to help tackle the empirical excercise of Problem set 2.
-## Copy-paste the code on your R-Studio and execute lines by ctrl + enter.
+## I will update this document every time I make progress, also updating the version number in the header.
+## Copy-paste the code on your R-Studio and execute the lines by ctrl + enter.
 
 
 # Utilize packages needed. If they are already installed once, only conduct the second of the lapply-commands.
@@ -35,8 +36,8 @@ data <- read_xls("grilic.xls")
 vars <- cbind(c(1:ncol(data)), names(data))
 
 
-
-# a)
+#####################################
+## a)
 
 # Calculate means and standard deviations for the variables
 means <- apply(X=data, MARGIN=2, FUN=mean)
@@ -77,81 +78,99 @@ var_names <- cbind(c(1:ncol(data2)), names(data2))
 
 
 
-
+#####################################
 ## b) Regression model without an intercept
 
-# Name the variables of interest
-log_wages <- data2[[19]]
-schooling <- data2[[13]]
-iq <- data2[[8]]
+# Explained variables
+log_wages <- data2[,19]
+
+# Explanatory variables
+schooling <- data2[,13]
+iq <- data2[,8]
+expr <- data2[,15]
+tenure <- data2[,17]
+rns <- data2[,1]
+smsa <- data2[,5,]
+year66 <- data2[,21]
+year67 <- data2[,22]
+year68 <- data2[,23]
+year69 <- data2[,24]
+year70 <- data2[,25]
+year71 <- data2[,26]
+year73 <- data2[,27]
+
+z <- cbind(schooling, iq, expr, tenure, rns, smsa,
+           year66, year67, year68, year69, year70, year71, year73) # Year dummies
+
+# Additional instruments
+med <- data2[,7]
+kww <- data2[,9]
+mrt <- data2[,3]
+age <- data2[,11]
+
+x <- cbind(schooling, expr, tenure, rns, smsa,
+           year66, year67, year68, year69, year70, year71, year73,
+           med, kww, mrt, age)
 
 
-## Obtain the regression coefficients
+# Ordinary Least Squares
+beta_ols <- solve(t(z) %*% z) %*% t(z) %*% log_wages
+y_hat_ols <- z%*%beta_ols
 
-# Old school
-x <- cbind(schooling, iq, data2[[15]], data2[[17]], data2[[1]], data2[[5]],
-           data2[[21]], data2[[22]], data2[[23]], data2[[24]], data2[[25]], data2[[26]], data2[[27]]) # Year dummies
-beta.b <- solve(t(x)%*%x)%*%t(x)%*%log_wages
-y_hat_b <- x%*%beta.b
+# Regression coefficients
+print(round(beta_ols, 4))
 
-ordered <- cbind(log_wages, c(1:length(log_wages)), y_hat_b)
+# Additional
+
+# Plot the ordered wage series and the ols estimate
+ordered <- cbind(c(1:length(log_wages)), log_wages, y_hat_ols)
 ordered <- ordered[order(log_wages),]
 
-plot(ordered[,1])
-lines(ordered[,2], col="blue") # Not working correctly yet
-
-# OR the loser way
-model.b <- lm(log_wages ~ schooling + iq
-            + data2[,15] + data2[,17] + data2[,1] + data2[,5]
-            + data2[,21] + data2[,22] + data2[,23] + data2[,24] + data2[,25] + data2[,26] + data2[,27] -1, data2)
-model.b
+plot(ordered[,2])
+lines(ordered[,3], col="blue")
+legend("topleft", legend=c("log wages", "ols estimate"), col=c("black", "blue"), lty=c(1), cex=1.2, box.lty=1)         
 
 
 
 
 ## 2SLS
-# Instruments z: s, h, MED, KWW, MRT and AGE
-x <- cbind(schooling, data2[,15], data2[,17], data2[,1], data2[,5],
-                    data2[,21], data2[,22], data2[,23], data2[,24], data2[,25], data2[,26], data2[,27],
-                    data2[,7], data2[,9], data2[,3], data2[,11])
-
-# Variables x:
-z <- cbind(schooling, data2[,8], data2[,15], data2[,17], data2[,1], data2[,5],
-                      data2[,21], data2[,22], data2[,23], data2[,24], data2[,25], data2[,26], data2[,27])
-
-# Explained variable y: Log wage
-y <- data[[19]]
 
 
 # 2SLS on one go
-S_xz <- t(x)%*%z
-S_xx <- t(x)%*%x
-S_xy <- t(x)%*%y
-beta_2SLS <- solve(t(S_xz)%*%solve(S_xx)%*%(S_xz))%*%t(S_xz)%*%solve(S_xx)%*%(S_xy)
+S_xz <- t(x) %*% z
+S_xx <- t(x) %*% x
+S_xy <- t(x) %*% log_wages
 
-y_hat <- x%*%beta_2SLS
+theta_2SLS <- solve(t(S_xz) %*% solve(S_xx) %*% (S_xz)) %*% t(S_xz) %*% solve(S_xx) %*% (S_xy)
+y_hat <-  %*% theta_2SLS # What should the theta be multiplied with? If you made this far, you deserve a good champ medal even without the answer!
 
-ts.plot(y)
-lines(y_hat, col="red")
-
-length(y)
+# Coefficients
+print(round(theta_2SLS, 4))
 
 
+
+#####################################
 ## c) Sargan's statistic. Should be 87.655
 g <- list()
-g[[i]] <- x[[]]
+for(i in 1:length(y)) g[[i]] <- x[i,] %*% (y[[i]] - t(z[i,]) %*% theta_2SLS)
 
 
+
+#####################################
 ## d) Obtain 2SLS by running two regressions.
 
-# First stage: Project explanatory variables x on the column space of instruments z.
-beta_x <- solve(t(x)%*%x)%*%t(x)%*%z
-z_hat <- x%*%beta_x
+# First stage: Project explanatory variables z on the column space of instruments x.
+beta_x <- solve(t(x) %*% x) %*% t(x) %*% z
+z_hat <- x %*% beta_x
 
 # Second stage: Project the explained variable y on the space spanned by z_hat matrix
-beta_z <- solve(t(z_hat)%*%z_hat)*(t(z_hat)%*%y)
-y_hat <- z_hat%*%beta_z
+theta_2sls <- solve(t(z_hat) %*% z_hat) %*% (t(z_hat) %*% y)
+y_hat <- z_hat%*%theta_2sls
 
+# Coefficients
+print(round(theta_2sls, 4))
+
+solve(t(solve(t(x) %*% x) %*% t(x) %*% z) %*% solve(t(x) %*% x) %*% t(x) %*% z) %*% t(solve(t(x) %*% x) %*% t(x) %*% z) %*%y
 
 ts.plot(y)
 lines(y_hat, col="red")
@@ -159,14 +178,15 @@ lines(y_hat, col="red")
 length(y)
 
 
+#####################################
 ## e) Endogenous schooling
 
 
+#####################################
+## f) Estimate wage equation by GMM
 
-## f) Estimate wage equation by GMM - nice!
 
-
-
+#####################################
 ## g) Drop MED and KWW from instruments
 
 
@@ -226,7 +246,7 @@ problem6(n=10000, beta=1)
 
 
 
-## Expected distance between two random points in a unit box
+## Expected distance between two random points in a unit (hyper)box
 
 length_between_random_points <- function(n, dim){
     distances <- c()
@@ -269,7 +289,7 @@ length_between_random_points(n=10000, dim=10000)
 
 
 
-# Gale-Shapley algorithm: Stable marriage problem
+# Gale-Shapley algorithm: Stable marriage problem (Incomplete)
 
 gale_shapley <- function(n_players, preferences_men, preferences_women){
     
@@ -313,12 +333,6 @@ gale_shapley <- function(n_players, preferences_men, preferences_women){
     
 }
 
-
-
-
-sample(c(1:5), 4)
-
-?sample
 
 
 
