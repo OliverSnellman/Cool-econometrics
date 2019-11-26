@@ -1,7 +1,7 @@
 ##########################################
 #####  Problems of life (and death)  #####
 ######  Oliver Snellman 20.11.2019  ######
-#######       Version: 1.1         #######
+#######       Version: 1.2         #######
 ##########################################
 
 
@@ -116,7 +116,8 @@ x <- cbind(schooling, data2[,15], data2[,17], data2[,1], data2[,5],
                     data2[,7], data2[,9], data2[,3], data2[,11])
 
 # Variables x:
-z <-  data2[,8]
+z <- cbind(schooling, data2[,8], data2[,15], data2[,17], data2[,1], data2[,5],
+                      data2[,21], data2[,22], data2[,23], data2[,24], data2[,25], data2[,26], data2[,27])
 
 # Explained variable y: Log wage
 y <- data[[19]]
@@ -137,7 +138,8 @@ length(y)
 
 
 ## c) Sargan's statistic. Should be 87.655
-
+g <- list()
+g[[i]] <- x[[]]
 
 
 ## d) Obtain 2SLS by running two regressions.
@@ -252,6 +254,77 @@ length_between_random_points <- function(n, dim){
 }
 
 length_between_random_points(n=10000, dim=10000)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Gale-Shapley algorithm: Stable marriage problem
+
+gale_shapley <- function(n_players, preferences_men, preferences_women){
+    
+    if(missing(preferences_men) && missing(preferences_women)){
+        # Create men and women with preferences over each others
+        
+        preferences_men <- list()
+        preferences_women <- list()
+        
+        for(i in 1:n_players){
+            preferences_men[[i]] <- c(sample(c(1:n_players), n_players))
+            preferences_women[[i]] <- c(sample(c(1:n_players), n_players))
+        }
+    }
+        
+        
+        # Matching algorithm
+        unstable <- TRUE
+        rounds <- 1
+        matches <- list()
+        
+        while(unstable){
+            waiting_list <- list(rep(n_players, n_players+1))
+            k <- 1
+            
+            for(i in 1:n_players){
+                best_woman <- which(preferences_men[[i]] == k) # i'th man's best available choice
+                waiting_list[[best_woman]] <- c(waiting_list[[best_woman]], )
+                
+            }
+            
+            
+            if(unstable == FALSE) break
+            
+            rounds <- rounds + 1
+            k <- k + 1
+        }
+    
+        
+    return(matches)
+    
+}
+
+
+
+
+sample(c(1:5), 4)
+
+?sample
+
+
+
+
+
+
 
 
 
