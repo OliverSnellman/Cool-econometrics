@@ -1,7 +1,7 @@
 ##########################################
 #####  Problems of life (and death)  #####
 ######  Oliver Snellman 20.11.2019  ######
-#######       Version: 1.3         #######
+#######       Version: 1.4         #######
 ##########################################
 
 
@@ -44,7 +44,7 @@ means <- apply(X=data, MARGIN=2, FUN=mean)
 deviations <- apply(X=data, MARGIN=2, FUN=sd)
 
 # Calculate the correlation between IQ and S. Square brackets are used to choose the required columns from the matrix "data" 
-corr_iq_s <- cov(data[,8],data[,13])/sqrt(deviations[,8]^2 * deviations[,13]^2)
+corr_iq_s <- cov(data[,8],data[,13])/sqrt(deviations[[8]]^2 * deviations[[13]]^2)
 
 # Generate year dummies for years 66-71 and 73
 year_dummy_generator <- function(input){
@@ -108,12 +108,11 @@ kww <- data2[,9]
 mrt <- data2[,3]
 age <- data2[,11]
 
-x <- cbind(schooling, expr, tenure, rns, smsa,
-           year66, year67, year68, year69, year70, year71, year73,
-           med, kww, mrt, age)
+x <- cbind(z[,-2], med, kww, mrt, age)
 
 
 # Ordinary Least Squares
+
 beta_ols <- solve(t(z) %*% z) %*% t(z) %*% log_wages
 y_hat_ols <- z%*%beta_ols
 
@@ -137,21 +136,26 @@ legend("topleft", legend=c("log wages", "ols estimate"), col=c("black", "blue"),
 
 
 # 2SLS on one go
+
+# Brute force
+y_hat_onego <- (x %*% (solve(t(x) %*% x) %*% t(x) %*% z)) %*% (solve(t((x %*% (solve(t(x) %*% x) %*% t(x) %*% z))) %*% (x %*% (solve(t(x) %*% x) %*% t(x) %*% z))) %*% (t((x %*% (solve(t(x) %*% x) %*% t(x) %*% z))) %*% y))
+
+
+# Get the coefficients
 S_xz <- t(x) %*% z
 S_xx <- t(x) %*% x
 S_xy <- t(x) %*% log_wages
 
 theta_2SLS <- solve(t(S_xz) %*% solve(S_xx) %*% (S_xz)) %*% t(S_xz) %*% solve(S_xx) %*% (S_xy)
-y_hat <-  %*% theta_2SLS # What should the theta be multiplied with? If you made this far, you deserve a good champ medal even without the answer!
-
-
-# Crude try
-y_hat_onego <- x %*% solve(t(x) %*% x) %*% t(x) %*% z %*% solve(t(solve(t(x) %*% x) %*% t(x) %*% z) %*% solve(t(x) %*% x) %*% t(x) %*% z) %*% t(solve(t(x) %*% x) %*% t(x) %*% z) %*% y
-
-
 
 # Coefficients
 print(round(theta_2SLS, 4))
+
+# More sophisticated but incomplete way to obtain y_hat
+y_hat_b <-  %*% theta_2SLS # What should the theta be multiplied with? - z_hat. If you made this far, you deserve a good champ medal even without the answer!
+
+
+
 
 
 
@@ -165,30 +169,65 @@ for(i in 1:length(y)) g[[i]] <- x[i,] %*% (y[[i]] - t(z[i,]) %*% theta_2SLS)
 #####################################
 ## d) Obtain 2SLS by running two regressions.
 
-# First stage: Project explanatory variables z on the column space of instruments x.
-beta_x <- solve(t(x) %*% x) %*% t(x) %*% z
-z_hat <- x %*% beta_x
+rain_maker <- function(x, z, y){
+    
+    # First stage: Project explanatory variables z on the column space of instruments x.
+    beta_x <- solve(t(x) %*% x) %*% t(x) %*% z
+    z_hat <- x %*% beta_x
+    
+    # Second stage: Project the explained variable y on the space spanned by z_hat matrix
+    theta_2sls <- solve(t(z_hat) %*% z_hat) %*% (t(z_hat) %*% y)
+    y_hat <- z_hat%*%theta_2sls
+    
+    return(list(z_hat=z_hat, theta=theta_2sls, y_hat=y_hat))
+}
 
-# Second stage: Project the explained variable y on the space spanned by z_hat matrix
-theta_2sls <- solve(t(z_hat) %*% z_hat) %*% (t(z_hat) %*% y)
-y_hat <- z_hat%*%theta_2sls
+results <- rain_maker(x=x, z=z, y=y)
+z_hat_d <- results$z_hat
+theta_2sls_d <- results$theta
+y_hat_d <- results$y_hat
 
 # Coefficients
-print(round(theta_2sls, 4))
+print(round(theta_2sls_d, 4))
+
+ts.plot(y)
+lines(y_hat_d, col="red")
 
 
 
 #####################################
 ## e) Endogenous schooling
 
+x_ <- x[,-1]
+
+results <- rain_maker(x=x_, z=z, y=y)
+z_hat_e <- results$z_hat
+theta_2sls_e <- results$theta
+y_hat_e <- results$y_hat
+
+# Coefficients
+print(round(theta_2sls_e, 4))
+
 
 #####################################
 ## f) Estimate wage equation by GMM
 
 
+
+
 #####################################
 ## g) Drop MED and KWW from instruments
 
+x. <- x_[,-c(13:14)]
+
+results <- rain_maker(x=x., z=z, y=y)
+z_hat_g <- results$z_hat
+theta_2sls_g <- results$theta
+y_hat_g <- results$y_hat
+
+
+# Coefficients
+print(round(theta_2sls_g, 4))
 
 
 
