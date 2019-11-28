@@ -1,7 +1,7 @@
 ##########################################
 #####  Problems of life (and death)  #####
-######  Oliver Snellman 20.11.2019  ######
-#######       Version: 1.4         #######
+######  Oliver Snellman 28.11.2019  ######
+#######       Version: 1.5         #######
 ##########################################
 
 
@@ -83,6 +83,7 @@ var_names <- cbind(c(1:ncol(data2)), names(data2))
 
 # Explained variables
 log_wages <- data2[,19]
+y <- log_wages
 
 # Explanatory variables
 schooling <- data2[,13]
@@ -108,7 +109,23 @@ kww <- data2[,9]
 mrt <- data2[,3]
 age <- data2[,11]
 
-x <- cbind(z[,-2], med, kww, mrt, age)
+x <- cbind(z[,-2], med, kww, mrt, age) # Instrument matrix includes (at this point) all explanatory variables, except endogenous IQ
+
+
+#Function for R^2
+r_squared <- function(y, y_hat){
+    rss <- c() # Residual sum of squares
+    tss <- c() # Total sum of squares
+    
+    for(i in 1:length(y)){
+        rss[[i]] <- (y[[i]] - y_hat[[i]])^2
+        tss[[i]] <- y[[i]]^2
+    }
+    
+    r_sq <- 1 - sum(rss)/sum(tss) # R^2
+    
+    return(r_sq)
+}
 
 
 # Ordinary Least Squares
@@ -116,30 +133,40 @@ x <- cbind(z[,-2], med, kww, mrt, age)
 beta_ols <- solve(t(z) %*% z) %*% t(z) %*% log_wages
 y_hat_ols <- z%*%beta_ols
 
+r_squared(y=y, y_hat=y_hat_ols)
+
 # Regression coefficients
 print(round(beta_ols, 4))
 
 # Additional
 
-# Plot the ordered wage series and the ols estimate
-ordered <- cbind(c(1:length(log_wages)), log_wages, y_hat_ols)
-ordered <- ordered[order(log_wages),]
+# Unordered plot
+ts.plot(y)
+lines(y_hat_ols, col="blue")
 
-plot(ordered[,2])
-lines(ordered[,3], col="blue")
-legend("topleft", legend=c("log wages", "ols estimate"), col=c("black", "blue"), lty=c(1), cex=1.2, box.lty=1)         
+# Function to plot the ordered wage series and the ols estimate
+plot_ordered <- function(y_hat, text){
+    ordered <- cbind(c(1:length(log_wages)), log_wages, y_hat)
+    ordered <- ordered[order(log_wages),]
+    
+    plot(ordered[,2])
+    lines(ordered[,3], col="blue")
+    legend("topleft", legend=c("log wages", text), col=c("black", "blue"), lty=c(1), cex=1.2, box.lty=1)         
+    
+}
 
+plot_ordered(y_hat=y_hat_ols, text=c("ols estimate"))
 
 
 
 ## 2SLS
 
-
-# 2SLS on one go
-
 # Brute force
 y_hat_onego <- (x %*% (solve(t(x) %*% x) %*% t(x) %*% z)) %*% (solve(t((x %*% (solve(t(x) %*% x) %*% t(x) %*% z))) %*% (x %*% (solve(t(x) %*% x) %*% t(x) %*% z))) %*% (t((x %*% (solve(t(x) %*% x) %*% t(x) %*% z))) %*% y))
 
+# Works! y_hat_onego is the same as y_hat_d in d)
+
+r_squared(y=y, y_hat=y_hat_onego)
 
 # Get the coefficients
 S_xz <- t(x) %*% z
@@ -149,10 +176,10 @@ S_xy <- t(x) %*% log_wages
 theta_2SLS <- solve(t(S_xz) %*% solve(S_xx) %*% (S_xz)) %*% t(S_xz) %*% solve(S_xx) %*% (S_xy)
 
 # Coefficients
-print(round(theta_2SLS, 4))
+round(theta_2SLS, 4)
 
 # More sophisticated but incomplete way to obtain y_hat
-y_hat_b <-  %*% theta_2SLS # What should the theta be multiplied with? - z_hat. If you made this far, you deserve a good champ medal even without the answer!
+y_hat_b <-  %*% theta_2SLS # What should the theta be multiplied with? - z_hat.
 
 
 
@@ -162,13 +189,22 @@ y_hat_b <-  %*% theta_2SLS # What should the theta be multiplied with? - z_hat. 
 #####################################
 ## c) Sargan's statistic. Should be 87.655
 g <- list()
-for(i in 1:length(y)) g[[i]] <- x[i,] %*% (y[[i]] - t(z[i,]) %*% theta_2SLS)
+for(i in 1:length(y)){
+    g[[i]] <- x[i,] %*% (y[[i]] - t(z[i,]) %*% theta_2SLS)
+}
+
+g_mat <- do.call(cbind, g) # Collapse the list into an NxK matrix
+
+sums <- apply(X=t(g_mat), MARGIN=2, FUN=sum)
+
+1/length(y) * sums # Sample moment conditions
 
 
 
 #####################################
 ## d) Obtain 2SLS by running two regressions.
 
+# This custom function conducting the 2SLS estimation will be used in d, e and g.
 rain_maker <- function(x, z, y){
     
     # First stage: Project explanatory variables z on the column space of instruments x.
@@ -187,26 +223,33 @@ z_hat_d <- results$z_hat
 theta_2sls_d <- results$theta
 y_hat_d <- results$y_hat
 
+r_squared(y=y, y_hat=y_hat_d)
+
 # Coefficients
 print(round(theta_2sls_d, 4))
 
-ts.plot(y)
-lines(y_hat_d, col="red")
+plot_ordered(y_hat=y_hat_d, text=c("2SLS estimate d)"))
+
 
 
 
 #####################################
-## e) Endogenous schooling
+## e) Both IQ and schooling are considered endogenous
 
-x_ <- x[,-1]
+x_ <- x[,-1]  # Remove schooling from the matrix of instruments
 
 results <- rain_maker(x=x_, z=z, y=y)
 z_hat_e <- results$z_hat
 theta_2sls_e <- results$theta
 y_hat_e <- results$y_hat
 
+r_squared(y=y, y_hat=y_hat_e)
+
 # Coefficients
 print(round(theta_2sls_e, 4))
+
+plot_ordered(y_hat=y_hat_e, text=c("2SLS estimate e)"))
+
 
 
 #####################################
@@ -225,10 +268,12 @@ z_hat_g <- results$z_hat
 theta_2sls_g <- results$theta
 y_hat_g <- results$y_hat
 
+r_squared(y=y, y_hat=y_hat_g)
 
 # Coefficients
 print(round(theta_2sls_g, 4))
 
+plot_ordered(y_hat=y_hat_g, text=c("2SLS estimate g)"))
 
 
 
