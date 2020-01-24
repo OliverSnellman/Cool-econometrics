@@ -1,0 +1,211 @@
+---
+title: "Advanced Macroeconomics 3"
+author:
+date: "24.1.2020"
+output: html_document
+---
+
+## Problem set 1, Exercise 1.
+
+```{r setup, include=FALSE}
+# This package is needed for the filtering
+pkgs <- c("mFilter", "dplyr", "data.table", "xtable", "DT")
+lapply(pkgs, library, character.only=TRUE)
+
+# Download data
+setwd("Z:/Exercises")
+data <- readxl::read_xlsx("Finland_data.xlsx")
+data <- data[-c(1:2),]
+```
+
+
+GDP and consumption are defined as logarithmic time series objects. They are de-trended using two sided HP-filter. Lambda is set to 1600 according to standard practices with quartal time series data.
+
+```{r variables, results=F}
+y <- log(ts(data[,2], start = c(1975,1), end = c(2018,4), frequency = 4))
+c <- log(ts(data[,3], start = c(1975,1), end = c(2018,4), frequency = 4))
+
+y_hp <- hpfilter(y,freq=1600,type=c("lambda"),drift=FALSE)
+c_hp <- hpfilter(c,freq=1600,type=c("lambda"),drift=FALSE)
+
+y_trend <- y_hp$trend
+c_trend <- c_hp$trend
+
+y_detrended <- y_hp$cycle
+c_detrended <- c_hp$cycle
+```
+
+
+###  Visualizing the results
+
+```{r plots, echo=FALSE}
+# Visualize the results
+plot(y)
+lines(y_trend, col=c("blue"))
+title("GDP")
+legend("topleft", legend=c("Real series", "HP-trend"), col=c("black", "blue"), lty=c(1), cex=1.2, box.lty=1)
+
+plot(c)
+lines(c_trend, col=c("blue"))
+title("Consumption")
+legend("topleft", legend=c("Real series", "HP-trend"), col=c("black", "blue"), lty=c(1), cex=1.2, box.lty=1)
+
+
+```
+
+
+
+## a)
+
+Re-creating a section of the table in the slides for Finnish data.
+
+```{r wrangle, echo=T}
+## Calculate the values for the table
+# Deviations
+y_dev <- sd(y_detrended)
+c_dev <- sd(c_detrended)
+
+# Relative deviations
+y_relative <- y_dev/y_dev
+c_relative <- c_dev/y_dev
+
+# First order autocorrelations
+# First order autocorrelations
+y_autocorr <- acf(y_detrended, lag.max = 1, plot = F)$acf[[2]]
+c_autocorr <- acf(c_detrended, lag.max = 1, plot = F)$acf[[2]]
+
+# Contemporaneous correlation with output
+y_corr <- cor(y_detrended, y_detrended)[[1]]
+c_corr <- cor(y_detrended, c_detrended)[[1]]
+
+output <- cbind(c(y_dev, c_dev), c(y_relative, c_relative), c(y_autocorr, c_autocorr), c(y_corr, c_corr))
+colnames(output) <- c("Standard deviation", "Relative standard deviation", "First order autocorrelation", "Contemporaneous correlation with output")
+rownames(output) <- c("Y", "C")
+
+```
+
+
+### Results with two sided filtering
+
+```{r table}
+# Prepare the table
+# print(xtable(output, digits=2), type="html")
+
+datatable(output) %>% formatRound(columns=c(1:4), digits=2)
+
+```
+
+
+
+
+## b)
+
+Estimate the size of the end point bias of HP-filter by comparing the previous results to those calculated form series, which were de-trended with one sided HP-filter.
+
+```{r one sided}
+# Custom function to conduct the analysis
+one_sided_hp <- function(data, lambda){
+    trend <- c()
+    detrended <- c()
+    
+    for(i in 4:length(data)){
+        x <- data[1:i]
+        
+        x_hp <- hpfilter(x, freq=lambda,type=c("lambda"),drift=FALSE)
+        trend[[i]] <- x_hp$trend[[i]]
+        detrended[[i]] <- x_hp$cycle[[i]]
+    }
+    
+    trend <- ts(trend, start = c(1976,1), end = c(2018,4), frequency = 4)
+    detrended <- ts(detrended, start = c(1976,1), end = c(2018,4), frequency = 4)
+
+    return(list(trend=trend, detrended=detrended))
+}
+
+
+
+y_1s <- one_sided_hp(data=y, lambda=1600)
+c_1s <- one_sided_hp(data=c, lambda=1600)
+
+y_trend_1s <- na.omit(y_1s$trend)
+c_trend_1s <-  na.omit(c_1s$trend)
+
+y_detrended_1s <-  na.omit(y_1s$detrended)
+c_detrended_1s <-  na.omit(c_1s$detrended)
+
+```
+
+
+### Visualizing the end point bias of the HP-filter in trends
+
+```{r plot new, echo=F}
+plot(y, lwd=1.5)
+lines(y_trend, col=c("blue"))
+lines(y_trend_1s, col=c("red"))
+title("GDP")
+legend("topleft", legend=c("Real series", "2 sided", "1 sided"), col=c("black", "blue", "red"), lty=c(1), cex=1.2, box.lty=1)
+
+plot(c, lwd=1.5)
+lines(c_trend, col=c("blue"))
+lines(c_trend_1s, col=c("red"))
+title("Consumption")
+legend("topleft", legend=c("Real series", "2 sided", "1 sided"), col=c("black", "blue", "red"), lty=c(1), cex=1.2, box.lty=1)
+
+# Visualize the end point bias of the HP-filter in cyclical components
+
+plot(y_detrended, col=c("blue"))
+lines(y_detrended_1s, col=c("red"))
+title("GDP")
+legend("topleft", legend=c("2 sided", "1 sided"), col=c("blue", "red"), lty=c(1), cex=1.2, box.lty=1)
+
+plot(c_detrended, col=c("blue"))
+lines(c_detrended_1s, col=c("red"))
+title("Consumption")
+legend("topleft", legend=c("2 sided", "1 sided"), col=c("blue", "red"), lty=c(1), cex=1.2, box.lty=1)
+
+```
+
+
+#### The series de-trended with one sided hp-filter exerts larger variances than those which were treated with the two sided version.
+
+```{r wrangle again, echo=F}
+## Calculate the values for the table
+# Deviations
+y_dev_s1 <- sd(y_detrended_1s)
+c_dev_s1 <- sd(c_detrended_1s)
+
+# Relative deviations
+y_relative_s1 <- y_dev_s1/y_dev_s1
+c_relative_s1 <- c_dev_s1/y_dev_s1
+
+# First order autocorrelations
+# First order autocorrelations
+y_autocorr_s1 <- acf(y_detrended_1s, lag.max = 1, plot = F)$acf[[2]]
+c_autocorr_s1 <- acf(c_detrended_1s, lag.max = 1, plot = F)$acf[[2]]
+
+# Contemporaneous correlation with output
+y_corr_s1 <- cor(y_detrended_1s, y_detrended_1s)[[1]]
+c_corr_s1 <- cor(y_detrended_1s, c_detrended_1s)[[1]]
+
+output_s1 <- cbind(c(y_dev_s1, c_dev_s1), c(y_relative_s1, c_relative_s1), c(y_autocorr_s1, c_autocorr_s1), c(y_corr_s1, c_corr_s1))
+colnames(output_s1) <- c("Standard deviation", "Relative standard deviation", "First order autocorrelation", "Contemporaneous correlation with output")
+output_comparison <- rbind(output, output_s1)
+rownames(output_comparison) <- c("Y one sided", "C one sided", "Y two sided", "C two sided")
+
+```
+
+
+
+### Comparison of the results
+
+```{r comparison, echo=F}
+# Prepare the table
+datatable(output_comparison) %>% formatRound(columns=c(1:4), digits=2)
+
+```
+
+#### Additional to higher variance, the one sided filtering also produces higher relative variance, contemporaneous correlation of consumption with output, and more persistent first order autocorrelation in both series.
+
+
+
+
