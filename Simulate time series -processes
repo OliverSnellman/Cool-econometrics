@@ -1,0 +1,137 @@
+## Oliver Snellman 28.2.2020
+# This simulator enables comparison of different time series processes, i.e. how identical
+# shocks propagate differently in AR(1), MA(1), ARMA(1,1), GARCH(1,1) and ARMA-GARCH(1,1,1,1) models.
+# If option IRF is specified as TRUE, then there is one unit sized shock every 50 periods,
+# otherwise the shocks are drawn randomly at each period from the specified distribution, normal,
+# uniform or t-distribution (with df=10).
+# The simulator currently allows for two processes to be compared at a time.
+# There are two options for th
+
+simulator <- function(n, models, errors, irf){
+    par(mfrow=c(1,1))
+    
+    # Set up the series
+    n_series <- length(models)
+    processes <- list()
+    model_names <- list()
+    parameters <- list()
+    h <- c(0) # For GARCH
+    u <- c(0)
+    
+    for(i in 1:n_series){
+        processes[[i]] <- c(0)
+        model_names[[i]] <- models[[i]][[1]]
+        parameters[[i]] <- models[[i]][[2]]
+    }
+    
+    # Vector of shocks
+    if(irf){
+        epsilon <- c(rep(c(0,0,0,0,1,rep(0, 45)), (ceiling(n/50))))
+    } else {
+        if(errors == "fat"){
+            epsilon <- rt(n, df=10)
+        } else if (errors == "uniform") {
+            epsilon <- runif(n,0,1)
+        } else {
+            epsilon <- rnorm(n,0,1)
+        }
+    }
+    
+    
+    # Simulate the series
+    for(j in 1:n_series){
+        for(i in 2:n){
+            if(model_names[[j]]=="arma-garch"){
+                h[[i]] <- 1 + parameters[[j]][[3]]*h[[i-1]] + parameters[[j]][[4]]*u[[i-1]]^2
+                u[[i]] <- sqrt(h[[i]])*epsilon[[i]]
+                processes[[j]][[i]] <- parameters[[j]][[1]]*processes[[j]][[i-1]] + parameters[[j]][[2]]*epsilon[[i-1]] + u[[i]]
+            } else if(model_names[[j]]=="garch"){
+                h[[i]] <- 1 + parameters[[j]][[1]]*h[[i-1]] + parameters[[j]][[2]]*processes[[j]][[i-1]]^2
+                processes[[j]][[i]] <- sqrt(h[[i]])*epsilon[[i]]
+            } else if(model_names[[j]] =="arma"){
+                processes[[j]][[i]] <- parameters[[j]][[1]]*processes[[j]][[i-1]] + parameters[[j]][[2]]*epsilon[[i-1]] + epsilon[[i]]
+            } else if (model_names[[j]] =="ar") {
+                processes[[j]][[i]] <- parameters[[j]][[1]]*processes[[j]][[i-1]] + epsilon[[i]]
+            } else if (model_names[[j]] =="ma") {
+                processes[[j]][[i]] <- parameters[[j]][[1]]*epsilon[[i-1]] + epsilon[[i]]
+            }
+        }
+    }
+    
+    
+    # Plot the results
+    
+    if(irf){
+        for(i in 1:n){
+            if(i>50){
+                ts.plot(ts(processes[[1]][(i-50):i]), ts(processes[[2]][(i-50):i]), line=0, col=c("blue", "red", "black"), lty=c(1,2))
+                title(paste(model_names[[1]], " and ", model_names[[2]], " processes"))
+                legend("bottomleft", legend=c(paste(model_names[[1]], ": ", "theta: ", parameters[[1]][[1]], ", phi: ", parameters[[1]][[2]]),
+                                              paste(model_names[[2]], ": ", "theta: ", parameters[[2]][[1]], ", phi: ", parameters[[2]][[2]])),
+                       col=c("blue", "red"), lty=c(1), cex=1.2, bty="n", box.lty=1)
+                
+                Sys.sleep(0.05)
+            } else {
+                ts.plot(ts(processes[[1]][1:i]), ts(processes[[2]][1:i]), line=0, col=c("blue", "red", "black"), lty=c(1,2))
+                title(paste(model_names[[1]], " and ", model_names[[2]], " processes"))
+                legend("bottomleft", legend=c(paste(model_names[[1]], ": ", "theta: ", parameters[[1]][[1]], ", phi: ", parameters[[1]][[2]]),
+                                              paste(model_names[[2]], ": ", "theta: ", parameters[[2]][[1]], ", phi: ", parameters[[2]][[2]])),
+                       col=c("blue", "red"), lty=c(1), cex=1.2, bty="n", box.lty=1)
+                
+                Sys.sleep(0.05)
+            }
+        }
+    } else {
+        for(i in 1:n){
+            if(i>100){
+                ts.plot(ts(processes[[1]][(i-100):i]), ts(processes[[2]][(i-100):i]), line=0, col=c("blue", "red", "black"), lty=c(1,2))
+                title(paste(model_names[[1]], " and ", model_names[[2]], " processes"))
+                legend("bottomleft", legend=c(paste(model_names[[1]], ": ", "theta: ", parameters[[1]][[1]], ", phi: ", parameters[[1]][[2]]),
+                                              paste(model_names[[2]], ": ", "theta: ", parameters[[2]][[1]], ", phi: ", parameters[[2]][[2]])),
+                       col=c("blue", "red"), lty=c(1), cex=1.2, bty="n", box.lty=1)
+                
+                Sys.sleep(0.05)
+            } else {
+                ts.plot(ts(processes[[1]][1:i]), ts(processes[[2]][1:i]), line=0, col=c("blue", "red", "black"), lty=c(1,2))
+                title(paste(model_names[[1]], " and ", model_names[[2]], " processes"))
+                legend("bottomleft", legend=c(paste(model_names[[1]], ": ", "theta: ", parameters[[1]][[1]], ", phi: ", parameters[[1]][[2]]),
+                                              paste(model_names[[2]], ": ", "theta: ", parameters[[2]][[1]], ", phi: ", parameters[[2]][[2]])),
+                       col=c("blue", "red"), lty=c(1), cex=1.2, bty="n", box.lty=1)
+                
+                Sys.sleep(0.05)
+            }
+        }
+    }
+    
+    
+    par(mfrow=c(1,1))
+}
+
+
+# Create a list of models to be compared. Each model is to be specified on a separate list,
+# with first element being a vector with the name of the process in "quotation" marks.
+# Next specify a vector with one or more parameters (depending on the model), first alpha or phi, then beta or theta.
+# FOr example, choose one of the following examples and conduct the simulation.
+
+model_list <- list()
+model_list[[1]] <- list(c("arma-garch"), c(0.4, 0.4, 0.4, 0.4))
+model_list[[2]] <- list(c("arma"), c(0.4, 0.4))
+
+#model_list <- list()
+#model_list[[1]] <- list(c("garch"), c(0.5, 0.5))
+#model_list[[2]] <- list(c("arma"), c(0.5, 0.5))
+
+#model_list <- list()
+#model_list[[1]] <- list(c("ar"), c(0.9))
+#model_list[[2]] <- list(c("arma"), c(0.9, 0.4))
+
+#model_list <- list()
+#model_list[[1]] <- list(c("ar"), c(0.6))
+#model_list[[2]] <- list(c("ma"), c(0.6))
+
+
+simulator(n=10000,                    # How many periods to simulate
+              models=model_list,
+              errors="fat",           # Distribution of error term: "normal", "fat" or "uniform"
+              irf=F)                  # Impulse Responses: T or F
+
