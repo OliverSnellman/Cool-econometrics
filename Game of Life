@@ -1,0 +1,161 @@
+#####################################################
+#####################################################
+##################                 ##################
+##############      John Conway's      ##############
+##########        The Game of Life         ##########
+########                                     ########
+########          by Oliver Snellman         ########
+##########            21.10.2020           ##########
+##############                         ##############
+##################                 ##################
+#####################################################
+#####################################################
+
+
+game_of_life <- function(size, rounds, stochastic, initial, speed, colors){
+    
+    # Initialize
+    if(initial=="random"){
+        grid <- matrix(sample(c(0, 1), size^2, replace = TRUE), nrow = size)
+    } else if (initial =="all alive") {
+      grid <- matrix(rep(1, size^2), nrow = size)
+    } else {
+      grid <- initial
+    }
+    
+    # Run the game
+    for(i in 1:rounds){
+        # Visualize the round
+      if(colors=="bw"){
+          heatmap(grid, scale = "none", Rowv = NA, Colv = NA, col = c("white", "black"),
+                labRow="", labCol="", main = paste("Game of life, round ", i))
+      } else {
+          heatmap(grid, scale = "none", Rowv = NA, Colv = NA, col = topo.colors(i%%7+2),
+                labRow="", labCol="", main = paste("Game of life, round ", i))
+      }
+        
+  
+        # Update the values
+        grid2 <- grid # Updates are saved temporarily into a secondary array, to not interfere with the updates
+        for(j in 1:size){ # rows
+            for(k in 1:size){ # cols
+                
+                # Find out the states of neighboring cells
+                neighbors_alive <- 0
+                
+                if(j==1){ # First row
+                    if(k==1){ # First column
+                      # same row side by side
+                      neighbors_alive <- neighbors_alive + sum(grid[j,(k+1)])
+                      # row below
+                      neighbors_alive <- neighbors_alive + sum(grid[(j+1),c(k:(k+1))])
+                    } else if(k==size){ # Last column
+                      # same row side by side
+                      neighbors_alive <- neighbors_alive + sum(grid[j,(k-1)])
+                      # row below
+                      neighbors_alive <- neighbors_alive + sum(grid[(j+1),c((k-1):k)])
+                    } else {
+                      # same row side by side
+                      neighbors_alive <- neighbors_alive + sum(grid[j,c((k-1),(k+1))])
+                      # row below
+                      neighbors_alive <- neighbors_alive + sum(grid[(j+1),c((k-1):(k+1))])
+                    }
+                } else if(j==size){ # Last row
+                    if(k==1){
+                      # row above
+                      neighbors_alive <- neighbors_alive + sum(grid[(j-1),c(k:(k+1))])
+                      # same row side by side
+                      neighbors_alive <- neighbors_alive + sum(grid[j,(k+1)])
+                    } else if(k==size){
+                      # row above
+                      neighbors_alive <- neighbors_alive + sum(grid[(j-1),c((k-1):k)])
+                      # same row side by side
+                      neighbors_alive <- neighbors_alive + sum(grid[j,(k-1)])
+                    } else {
+                      # row above
+                      neighbors_alive <- neighbors_alive + sum(grid[(j-1),c((k-1):(k+1))])
+                      # same row side by side
+                      neighbors_alive <- neighbors_alive + sum(grid[j,c((k-1),(k+1))])
+                    }
+                } else {
+                    if(k==1){
+                      # row above
+                      neighbors_alive <- neighbors_alive + sum(grid[(j-1),c(k:(k+1))])
+                      # same row side by side
+                      neighbors_alive <- neighbors_alive + sum(grid[j,(k+1)])
+                      # row below
+                      neighbors_alive <- neighbors_alive + sum(grid[(j+1),c(k:(k+1))])
+                    } else if(k==size){
+                      # row above
+                      neighbors_alive <- neighbors_alive + sum(grid[(j-1),c((k-1):k)])
+                      # same row side by side
+                      neighbors_alive <- neighbors_alive + sum(grid[j,(k-1)])
+                      # row below
+                      neighbors_alive <- neighbors_alive + sum(grid[(j+1),c((k-1):k)])
+                    } else {
+                      # row above
+                      neighbors_alive <- neighbors_alive + sum(grid[(j-1),c((k-1):(k+1))])
+                      # same row side by side
+                      neighbors_alive <- neighbors_alive + sum(grid[j,c((k-1),(k+1))])
+                      # row below
+                      neighbors_alive <- neighbors_alive + sum(grid[(j+1),c((k-1):(k+1))])
+                    }
+                }
+                
+                # Update the values
+                if(neighbors_alive < 2){ # Death by underpopulation
+                    grid2[j,k] <- 0
+                } else if(grid[j,k]==1 && neighbors_alive == 2){ # Stays alive
+                    grid2[j,k] <- 1
+                } else if(neighbors_alive == 3){ # Resurrection
+                    grid2[j,k] <- 1
+                } else if(neighbors_alive >3){ # Death by overpopulation
+                    grid2[j,k] <- 0
+                }
+            }
+        }
+        
+        # Update the actual grid
+        
+        if(stochastic>0){
+          grid <- grid2
+          
+          row_miracles <- sample(size, round(stochastic*size))
+          col_miracles <- sample(size, round(stochastic*size))
+          grid[row_miracles, col_miracles] <- 1
+        } else {
+          grid <- grid2
+        }
+        
+        # Don't visualize too hastily
+        if(speed=="fast"){
+          Sys.sleep(0.05)
+        } else {
+          Sys.sleep(0.15)
+        }
+    }
+}
+
+
+## Inputs
+#  size: Integer determining the side length of the square arena,
+#  rounds: Integer issuing how long the game is iterated
+#  stochastic: Real number in [0,1], giving how many cells are randomly resurrected each period
+#  initial: randomized by "random", all cells determined to be alive by "all alive", or a custom matrix of size n*n can be supplied as such 
+#  speed: Specify "fast" for quicker animation
+#  colors: Black and white with "bw", otherwise more psychedelic colors
+
+
+game_of_life(
+        size = 50,
+      rounds = 1000,
+  stochastic = 0.01,
+     initial = "random",
+       speed = "fast",
+      colors = ""
+      )
+
+
+# Create a custom initialization
+custom <- matrix(0,nrow=100, ncol=100)
+custom[40:60,40:60] <- 1
