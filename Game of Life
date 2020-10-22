@@ -21,6 +21,7 @@ game_of_life <- function(size, rounds, stochastic, initial, speed, colors){
       grid <- matrix(rep(1, size^2), nrow = size)
     } else {
       grid <- initial
+      size <- nrow(initial)
     }
     
     # Run the game
@@ -156,6 +157,6 @@ game_of_life(
       )
 
 
-# Create a custom initialization
-custom <- matrix(0,nrow=100, ncol=100)
-custom[40:60,40:60] <- 1
+## Create a custom initialization
+custom <- matrix(0, nrow=50, ncol=50)
+custom[30:50, 30:40] <- 1 # Hearts on rounds 4-9, Emojis on rounds 23-35
