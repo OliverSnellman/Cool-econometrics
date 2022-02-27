@@ -1,0 +1,266 @@
+\documentclass{article}
+% Also try specifying the documentclass as report and book
+% Tutorial on writing a the Master's thesis with LaTeX
+% Oliver Snellman, 17.2.2022
+
+
+%%%%%%%%%%%%%%%
+%%  General  %%
+%%%%%%%%%%%%%%%
+
+% The aim of this document is to provide you with a LaTeX-template with most of the common features and instructions on how to use them, so that you can successfully write your first paper or even the Master's thesis with LaTeX.
+
+% Copy-paste the whole content of this document into a LaTeX editor (make sure there is nothing else in the script), and compile a pdf. Go through this document and observe how the instructions are translated into the pdf. Make changes to the code and recompile the new pdf with Ctrl+s. If you get an error, either back down until the file compiles again or go to StackOverflow like the rest of us.
+
+% LaTeX is a document preparation system, which compiles a pdf file (right panel on Overleaf) based on these instructions (left panel). LaTeX is very popular among quantitative scientists, because it makes writing equations enjoyable and aesthetic. There are plenty of other benefits to LaTeX as well.
+% Overleaf is an easy to use online interface for using LaTeX, with free cloud storage
+
+% Text following a percent symbol are comments for you and will not show in the pdf
+
+% Inserting layout-instructions, equations, list, figures and special symbols, all start with backslash \, followed by the name of the instruction and possibly more information inside curly brackets {}. For example, \beta prints the Greek symbol beta or \begin{equation} y = 2x \end{equation}.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  Download packages  %%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% In LaTeX most of the symbols and functionality comes from packages, that you have to download separately in the preamble before \begin{document}
+% Here I have only used the necessary packages for the examples in this document to work
+
+% Set margins
+\usepackage[a4paper, left=3cm, right=3cm, top=3cm, bottom=3cm]{geometry}
+\usepackage[utf8]{inputenc}
+
+% For math
+\usepackage{amsmath}
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+%\usepackage[bottom]{footmisc}
+
+% For attaching figures
+\usepackage{float}
+
+% For drawing graphs
+\usepackage{tikz}
+\usetikzlibrary{arrows,automata,shapes,calc}
+\usetikzlibrary{intersections,positioning}
+
+% Add hyperlinks and choose colors
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    citecolor=teal,
+    linkcolor=violet,
+    filecolor=magenta,      
+    urlcolor=olive
+}
+
+
+%%%%%%%%%%%%%%%%%%%%%%
+%%  Set title page  %%
+%%%%%%%%%%%%%%%%%%%%%%
+
+\title{Name of the Thesis here}
+
+\author{Name here \\
+Email here}
+
+\date{\today} % \today automatically sets current date
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  Begin the document  %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+
+
+%%%%%%%%%%%%%%%%%%
+%%  Title page  %%
+%%%%%%%%%%%%%%%%%%
+
+% \maketitle inserts the info specified above
+\vspace{-3cm}
+\maketitle
+\vspace{1 cm}
+
+% Omit page number from this page
+\thispagestyle{empty}
+
+\begin{abstract}
+Write your abstract here
+\end{abstract}
+
+% You can adjust the spacing according to your aesthetic preferences
+\vspace{6 cm}
+{
+\centering
+\Large
+Name of University\\
+Name of faculty\\
+}
+
+% Start a new page with
+\newpage
+
+% \tableofcontents will print the contents according to user specified chapter - section - subsection... structure
+\tableofcontents
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%  Structure of the document  %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Before each new main section, type \section{}. The numbering is automatic
+
+\section{Introduction}
+\label{first} % With \label{labelName} you can reference the number of the section, equation or figure elsewhere with \ref{LabelName}
+
+Write the actual introduction text here. You can highlight text in \textbf{bold}, \textit{italic}, \underline{underline} or different {\Huge size}, or insert \href{https://www.overleaf.com/learn/latex/Creating_a_document_in_LaTeX}{hyperlinks}. Notice, that the default size, numbering and spacing around the section title all looks good. All paragraphs after the first one have automatic indentation.
+
+Start a new paragraph by leaving one empty line here. For custom horizontal space use \hspace{1cm} and for vertical space use
+
+\vspace{1cm}
+
+to gain the desired result. Add footnotes with\footnote{And write the text here.}.
+
+
+% Let's insert some more sections and subsections.
+
+\section{Literature}
+
+Create a separate file in the leftmost third panel and name the file references.bib. Copy-paste bibtex-references (from ideas repec etc.) to that file and cite them using \cite{paperName}. The citation appears in the text and the paper is added to the References. You don't need to keep track of whether there is 1 to 1 mapping between the citations and references.
+
+Let's add a subsection
+
+
+\subsection{Tables}
+
+Specify number of columns after backslash begin\{tabular\}\{number of columns here\}.
+Each column is defined as c, l or right, based on their alignment to center, left or right, respectively. Number of rows is specified with double backslash after each row.
+
+\begin{table}[H]
+    \centering
+        \begin{tabular}{c|c}
+        \hline
+          G \uparrow    & IS \uparrow   \\
+          T \downarrow  & IS \uparrow \\
+          NX \uparrow   & IS \uparrow \\
+        \hline
+        \end{tabular}
+    \caption{Shifting the IS-curve}
+    \label{table1}
+\end{table}
+
+Or
+
+\begin{table}[H]
+    \centering
+        \begin{tabular}{|l|c|r|}
+        \hline
+         Name    & Age & Skill      \\
+         \hline
+         \hline
+         Jussy   &  24 & Lentäminen \\
+         \hline
+         Katrie  & ?  & Selvänäkö  \\
+         \hline
+         Carmen  & 12  & Matikka    \\
+         \hline
+        \end{tabular}
+    \caption{Hit squad}
+    \label{table2}
+\end{table}
+
+Can you figure out how the vertical and horizontal lines are determined, based on the code determining the tables?
+
+
+\section{Model}
+
+If you want a subsection (or section) without numbering, add an asterisk after "subsection".
+
+\subsection*{Equations}
+
+Add an equation with align package. With the symbol "\&" you can define which symbols to align in a multi-line equations, and start the new line with double (or quadruple) backslash. Add name of the equation in the end with double \&\&.
+
+\begin{align*}
+\frac{\partial y}{\partial x} &= \underset{h \rightarrow 0}{lim}  \frac{f(x+h, z) - f(x,z)}{h}  \numberthis \label{equation1} \\ \\
+Y_t &= A_t K_t^\alpha L_t^{1-\alpha} && \text{Cobb-Douglas}\\
+\end{align*}
+
+Notice, that the Greek symbols only work in math-mode (between the begin and end commands above). You can also enter a math mode with dollar signs - write the in-line-equations between them, like $[p \implies q] = [\neg p \lor q]$. 
+
+
+\subsection{Referencing}
+
+You can reference the Section by their number \ref{first}, or by their page number, page \pageref{first}. You can also reference tables, equations, graphs and figures, like Table \ref{table2} on page \pageref{table2} and Equation \ref{equation1}. You can reference things to come later in the document, like the Figure \ref{asad}. The magic of referencing is, that you don't need to keep track of the actual numbers - they change automatically with the text! Try adding a new section in the beginning of the document and observe what happens here.
+
+
+
+\section{Results}
+
+\subsection{Attach figures}
+
+Upload your figure in the leftmost third panel and add the filename below.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{fileName.png}
+    \caption{Write your caption here}
+    \label{fig:my_label}
+\end{figure}
+
+
+\subsection{Draw graphs}
+
+Here is how to draw curves on Cartesian plane.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.7]
+% Axes
+\draw[->] (0,0) -- (10,0) node[anchor=north] {\Large Y};
+\draw[->] (0,0) -- (0,10) node[anchor=east] {\Large $\pi$};
+\draw (0,0) node[anchor=north] {0};
+
+% Aggregate supply
+\draw[name path=AS] (1,1) -- (9,9)   node[right]{AS};
+
+% Aggregate demand
+\draw[name path=AD] (1,9) -- (9,1)  node[right]{AD};
+
+% Equilibrium
+\path [name intersections={of=AS and AD, by=E}];
+\draw node[circle, fill=violet, scale=0.5] at (E) {};
+
+\end{tikzpicture}
+\caption{AD-AS model}
+\label{asad}
+\end{figure}
+
+
+Draw flow-charts using the automata environment.
+
+
+\begin{figure}[H]
+    \centering
+\begin{tikzpicture}[] 
+   \node[state] (S)   {S}; 
+   \node[state] (I) [right =of S] {I}; 
+   \node[state, accepting](R) [right =of I] {R};
+   
+   \path[->, >=stealth] 
+    (S) edge  node [above] {$\beta$} (I)
+    (I) edge  node [above] {$\gamma$} (R)
+\end{tikzpicture}
+    \caption{SIR model}
+    \label{sir}
+\end{figure}
+
+
+
+Finally, add the references with the following commands
+
+\bibliographystyle{agsm}
+\bibliography{references}
+
+\end{document}
