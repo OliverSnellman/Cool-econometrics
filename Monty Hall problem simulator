@@ -1,0 +1,49 @@
+### Monty Hall problem
+## Oliver Snellman 10/2021
+
+# The following algorithm plays the Monty-Hall game n times, implementing two strategies
+# each round: Change or don't change initial guesses based on the host's actions.
+
+simulate_monty_hall <- function(n=10000){
+  
+  # Set the counters for wins for both strategies
+  not_changing <- 0
+  changing <- 0
+  
+  # The actual simulation begins
+  for(i in 1:n){
+    
+    # Set the price randomly behind one of the doors
+    winner <- sample(c(1:3),1)
+    
+    # Guess a door. This will also be the choice for not-changing -strategy.
+    choice1 <- sample(c(1:3),1)
+    
+    # Host removes a wrong door from the ones that are still closed
+    wrong_left <- c(1:3)[-c(winner,choice1)]
+    ifelse(length(wrong_left)==1,
+           remove <- wrong_left,
+           remove <- sample(wrong_left, 1))
+    
+    # Change the choice to the final door left. This is the choice for changing -strategy
+    choice2 <- c(1:3)[-c(choice1,remove)]
+    
+    # Check which strategy won
+    if(choice1 == winner){
+      not_changing <- not_changing + 1
+    } else if (choice2 == winner) {
+      changing <- changing + 1
+    } else {
+      print("Can you figure out why this never prints?")
+    }
+  }
+  
+  # Print out the results
+  cat("\n Out of ", n, " games, the winning percentages for the two strategies were")
+  cat("\n", 100*round(changing/n,2), "% changing the door")
+  cat("\n", 100*round(not_changing/n,2), "% not changing")
+}
+
+
+# Run the simulation
+simulate_monty_hall()
