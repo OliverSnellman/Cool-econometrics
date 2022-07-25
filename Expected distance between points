@@ -1,9 +1,9 @@
 ### Expected distance between two random points in a unit (hyper)box
 ## Oliver Snellman 2020
 
-# Finds what the title says.
+# Approximates what the title says.
 
-length_between_random_points <- function(dim, n){
+length_between_random_points <- function(dim, n, show=TRUE){
     distances <- c(NA)
     
     for(i in 1:n){
@@ -24,10 +24,22 @@ length_between_random_points <- function(dim, n){
     average_distance <- mean(distances)
     deviations <- sd(distances)
     
-    hist(distances, col="skyblue")
-    
-    cat("\n Average distance ", round(average_distance, 2),
-        "\nStandard deviation ", round(deviations, 2), "\n")
+    if(show){
+      hist(distances, col="skyblue")
+      cat("\n Average distance ", round(average_distance, 2),
+          "\nStandard deviation ", round(deviations, 2), "\n")
+    } else {
+      return(average_distance)
+    }    
 }
 
-length_between_random_points(dim=30, n=10000)
+length_between_random_points(dim=2, n=10000)
+
+# Find how the average develops when dimensions increase
+results <- c(NA)
+
+for(j in 2:100) {
+  results[[j]] <- length_between_random_points(dim=j, n=1000, show=FALSE)
+}
+
+ts.plot(results)
