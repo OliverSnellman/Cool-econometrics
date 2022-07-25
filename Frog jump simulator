@@ -1,37 +1,56 @@
 ### Frog jump probability puzzle
-## Oliver Snellman
+## Oliver Snellman 2019
 
 # Frog crosses a river by jumping from a stone to another.
 # The frog chooses randomly, to which of the remaining stones
 # it jumps to. At minimum, the crossing can happen in one hop.
 # At maximum, the frog visits each stone in order.
 # What is the average number of jumps to cross a river?
+# Reaching the last stone means crossing the river.
 
-frog_jump <- function(stones, n){
+frog_jump <- function(stones, n, show=TRUE){
     
     counter <- c(NA)
     
     for(i in 1:n){
-        current <- 1
-        counter[[i]] <- 1
+        current <- 0
+        counter[[i]] <- 0
         not_finished <- T
         
         while(not_finished){
-            stones_left <- length(c(current:stones))
+            stones_left <- length((current+1):stones)
             jump <- sample(stones_left,1)
             current <- current + jump
             
-            if(current >= stones) not_finished <- F
-            
             counter[[i]] <- counter[[i]] + 1
+            
+            if(current >= stones) break        
         }
     }
     
+    # Results
     average_jumps <- mean(counter)
-    hist(counter, xlab="Number of jumps", col="skyblue")
     
-    
-    cat("\n Took ", average_jumps, " tries on average")
+    if(show){
+      hist(counter, xlab="Number of jumps", col="skyblue")
+      cat("\n Took ", average_jumps, " tries on average")
+    } else {
+      return(average_jumps)
+    }
 }
 
-frog_jump(stones = 10, n = 10000)
+# Check the distribution for chosen number of stones
+frog_jump(stones = 64, n = 10000)
+
+
+# Find out how averages develop when number of stones increase
+max_stones <- 100
+pb <- txtProgressBar(min = 0, max = max_stones, style = 3)
+averages <- c(NA)
+
+for(k in 1:max_stones) {  
+  averages[[k]] <- frog_jump(stones = k, n = 2000, show=FALSE)
+  setTxtProgressBar(pb, k)
+}
+
+ts.plot(averages, xlab="Number of stones", ylab="Avg jumps", col="skyblue")
