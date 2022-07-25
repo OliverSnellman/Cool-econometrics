@@ -13,6 +13,7 @@ length_between_random_points <- function(dim, n, show=TRUE){
         dist <- c(NA)
         dist[[1]] <- vector1[[1]] - vector2[[1]]
         
+        # Apply Pythagoras' rule to two consecutive dimensions in a row
         for(k in 2:dim){
             dist[[k]] <- sqrt((vector1[[k]] - vector2[[k]])^2 + dist[[k-1]]^2)
         }
