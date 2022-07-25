@@ -1,0 +1,37 @@
+### Frog jump probability puzzle
+## Oliver Snellman
+
+# Frog crosses a river by jumping from a stone to another.
+# The frog chooses randomly, to which of the remaining stones
+# it jumps to. At minimum, the crossing can happen in one hop.
+# At maximum, the frog visits each stone in order.
+# What is the average number of jumps to cross a river?
+
+frog_jump <- function(stones, n){
+    
+    counter <- c(NA)
+    
+    for(i in 1:n){
+        current <- 1
+        counter[[i]] <- 1
+        not_finished <- T
+        
+        while(not_finished){
+            stones_left <- length(c(current:stones))
+            jump <- sample(stones_left,1)
+            current <- current + jump
+            
+            if(current >= stones) not_finished <- F
+            
+            counter[[i]] <- counter[[i]] + 1
+        }
+    }
+    
+    average_jumps <- mean(counter)
+    hist(counter, xlab="Number of jumps", col="skyblue")
+    
+    
+    cat("\n Took ", average_jumps, " tries on average")
+}
+
+frog_jump(stones = 10, n = 10000)
