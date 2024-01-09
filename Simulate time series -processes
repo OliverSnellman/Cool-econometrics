@@ -95,7 +95,7 @@ simulator <- function(n, models, errors, speed, irf){
         lims <- c(min(limits[(i-100):i,1]), max(limits[(i-100):i,2]))
         ts.plot(ts(processes[[1]][(i-100):i]), line=0, col=c("blue", "black"), ylim=lims, lty=c(1))
         for(j in 2:n_series) lines(ts(processes[[j]][(i-100):i]), col=cols_[[j-1]])
-        title("Comparing how time series processes")
+        title("Comparing time series processes")
         legend("bottomleft", legend=model_names,
                col=c("blue", cols_), lty=c(1), cex=1.2, bty="n", box.lty=1)
       } else {
