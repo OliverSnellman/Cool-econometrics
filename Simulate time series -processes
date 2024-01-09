@@ -1,11 +1,14 @@
 ## Oliver Snellman 28.2.2020 (Updated 9.1.2024)
-# This simulator enables comparison of different time series processes, i.e. how identical
-# shocks propagate through AR(1), MA(1), ARMA(1,1), GARCH(1,1) and ARMA-GARCH(1,1,1,1) models.
-# If option IRF is specified as TRUE, then there is one unit sized shock every 50 periods,
-# otherwise the shocks are drawn randomly at each period from the specified distribution; normal,
-# uniform or t-distribution (with df=10).
 
-simulator <- function(n, models, errors, irf){
+# This simulator enables comparison of different time series processes, i.e. how identical
+# shocks propagate through AR(1), MA(1), ARMA(1,1), GARCH(1,1) and ARMA-GARCH(1,1,1,1) models,
+# with user specified parameter values. An introduction to the models can be found at:
+# github.com/OliverSnellman/Cool-econometrics/blob/master/Time_series_models.pdf.
+
+# If option IRF is specified as TRUE, then there is one unit sized shock every 50 periods.
+# Otherwise the shocks are drawn randomly at each period from either normal, uniform or t-distribution (with df=10).
+
+simulator <- function(n, models, errors, speed, irf){
   par(mfrow=c(1,1))
   
   # Set up the series
@@ -15,7 +18,7 @@ simulator <- function(n, models, errors, irf){
   parameters <- list()
   h <- c(0) # For GARCH
   u <- c(0)
-  speed <- 0.1
+  refresh <- ifelse(speed=="fast", 0.05, 0.2)
 
   for(i in 1:n_series){
     processes[[i]] <- c(0)
@@ -84,7 +87,7 @@ simulator <- function(n, models, errors, irf){
                col=c("blue", "red"), lty=c(1), cex=1.2, bty="n", box.lty=1)
         }
       
-      Sys.sleep(speed)
+      Sys.sleep(refresh)
     }
   } else {
     for(i in 1:n){
@@ -104,7 +107,7 @@ simulator <- function(n, models, errors, irf){
                col=c("blue", cols_), lty=c(1), cex=1.2, bty="n", box.lty=1)
       }
       
-      Sys.sleep(speed)
+      Sys.sleep(refresh)
     }
   }
   
@@ -113,32 +116,32 @@ simulator <- function(n, models, errors, irf){
 }
 
 
-# Create a list of models to be compared. Each model is to be specified on a separate list,
-# with first element being a vector with the name of the process in "quotation" marks.
-# Next specify a vector with one or more parameters (depending on the model), first alpha or phi, then beta or theta.
-# FOr example, choose one of the following examples and conduct the simulation.
+# Create a list of models to be compared. Each model is to be specified on a separate entry to the list.
+# First element is the name of the process in "quotation" marks: "ar", "ma", "arma", "garch" or "arma-garch".
+# Second element is a vector with one or more parameters (depending on the model), first alpha or phi, then beta or theta.
 
 model_list <- list()
-model_list[[1]] <- list(c("arma"), c(0.5, 0.5))
-model_list[[2]] <- list(c("garch"), c(0.5, 0.5))
+model_list[[1]] <- list("arma", c(0.5, 0.5))
+model_list[[2]] <- list("garch", c(0.5, 0.5))
 
-# model_list <- list()
-# model_list[[1]] <- list(c("arma-garch"), c(0.4, 0.4, 0.4, 0.4))
-# model_list[[2]] <- list(c("arma"), c(0.4, 0.4))
+# model_list[[1]] <- list("ar", c(0.9))
+# model_list[[2]] <- list("ma", c(0.9))
+#
+# model_list[[1]] <- list("ar", c(0.4))
+# model_list[[2]] <- list("arma", c(0.4, 0.4))
 # 
-# model_list <- list()
-# model_list[[1]] <- list(c("ar"), c(0.9))
-# model_list[[2]] <- list(c("arma"), c(0.9, 0.4))
-# 
-# model_list <- list()
-# model_list[[1]] <- list(c("ar"), c(0.6))
-# model_list[[2]] <- list(c("ma"), c(0.6))
-# model_list[[3]] <- list(c("arma"), c(0.5, 0.5))
-# model_list[[4]] <- list(c("garch"), c(0.5, 0.5))
-# model_list[[5]] <- list(c("arma-garch"), c(0.4, 0.4, 0.4, 0.4))
+# model_list[[1]] <- list("ar", c(0.6))
+# model_list[[2]] <- list("ma", c(0.6))
+# model_list[[3]] <- list("arma", c(0.5, 0.5))
+# model_list[[4]] <- list("garch", c(0.5, 0.5))
+# model_list[[5]] <- list("arma-garch", c(0.4, 0.4, 0.4, 0.4))
+
 
 dev.new()
-simulator(n=1000,                    # How many periods to simulate
-          models=model_list,
-          errors="fat",                 # Distribution of error term: "normal", "fat" or "uniform"
-          irf=F)                     # Impulse Responses: T or F
+simulator(n=10000,                   # How many periods to simulate
+          models=model_list,         # Pre-specified list of models to compare
+          errors="fat",              # Distribution of the error term: "normal", "fat" or "uniform"
+          speed="fast",              # Speed of simulation: "fast" or "slow"
+          irf=FALSE)                 # Impulse Responses: TRUE or FALSE
+
+dev.off()
