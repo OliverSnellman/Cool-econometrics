@@ -9,21 +9,21 @@
 # Otherwise the shocks are drawn randomly at each period from either normal, uniform or t-distribution (with df=10).
 
 simulator <- function(n, models, errors, speed, irf){
-  par(mfrow=c(1,1))
   
-  # Set up the series
+  # Set up
+  par(mfrow=c(1,1))
+  refresh <- ifelse(speed=="fast", 0.05, 0.2)
+  
   n_series <- length(models)
-  processes <- list()
-  model_names <- list()
-  parameters <- list()
+  y <- list()
   h <- c(0) # For GARCH
   u <- c(0)
-  refresh <- ifelse(speed=="fast", 0.05, 0.2)
-
+  model_names <- list()
+  params <- list()
   for(i in 1:n_series){
-    processes[[i]] <- c(0)
+    y[[i]] <- c(0)
     model_names[[i]] <- models[[i]][[1]]
-    parameters[[i]] <- models[[i]][[2]]
+    params[[i]] <- models[[i]][[2]]
   }
   
   # Vector of shocks
@@ -44,44 +44,41 @@ simulator <- function(n, models, errors, speed, irf){
   for(j in 1:n_series){
     for(i in 2:n){
       if(model_names[[j]]=="arma-garch"){
-        h[[i]] <- 1 + parameters[[j]][[3]]*h[[i-1]] + parameters[[j]][[4]]*u[[i-1]]^2
+        h[[i]] <- 1 + params[[j]][[3]]*h[[i-1]] + params[[j]][[4]]*u[[i-1]]^2
         u[[i]] <- sqrt(h[[i]])*epsilon[[i]]
-        processes[[j]][[i]] <- parameters[[j]][[1]]*processes[[j]][[i-1]] + parameters[[j]][[2]]*epsilon[[i-1]] + u[[i]]
+        y[[j]][[i]] <- params[[j]][[1]]*y[[j]][[i-1]] + params[[j]][[2]]*epsilon[[i-1]] + u[[i]]
       } else if(model_names[[j]]=="garch"){
-        h[[i]] <- 1 + parameters[[j]][[1]]*h[[i-1]] + parameters[[j]][[2]]*processes[[j]][[i-1]]^2
-        processes[[j]][[i]] <- sqrt(h[[i]])*epsilon[[i]]
+        h[[i]] <- 1 + params[[j]][[1]]*h[[i-1]] + params[[j]][[2]]*y[[j]][[i-1]]^2
+        y[[j]][[i]] <- sqrt(h[[i]])*epsilon[[i]]
       } else if(model_names[[j]] =="arma"){
-        processes[[j]][[i]] <- parameters[[j]][[1]]*processes[[j]][[i-1]] + parameters[[j]][[2]]*epsilon[[i-1]] + epsilon[[i]]
+        y[[j]][[i]] <- params[[j]][[1]]*y[[j]][[i-1]] + params[[j]][[2]]*epsilon[[i-1]] + epsilon[[i]]
       } else if (model_names[[j]] =="ar") {
-        processes[[j]][[i]] <- parameters[[j]][[1]]*processes[[j]][[i-1]] + epsilon[[i]]
+        y[[j]][[i]] <- params[[j]][[1]]*y[[j]][[i-1]] + epsilon[[i]]
       } else if (model_names[[j]] =="ma") {
-        processes[[j]][[i]] <- parameters[[j]][[1]]*epsilon[[i-1]] + epsilon[[i]]
+        y[[j]][[i]] <- params[[j]][[1]]*epsilon[[i-1]] + epsilon[[i]]
       }
     }
   }
   
-  #browser()
-  stack <- do.call(cbind, processes)
-  #print(stack)
+  # For visualization
+  stack <- do.call(cbind, y)
   limits <- t(apply(stack, 1, range))
-  #print(visual_range)
+  
   # Plot the results
-  
   cols_ <- c("red", "violet", "forestgreen", "purple")
-  
   if(irf){
     for(i in 1:n){
       if(i>50){
         lims <- c(min(limits[(i-50):i,1]), max(limits[(i-50):i,2]))
-        ts.plot(ts(processes[[1]][(i-50):i]), line=0, col=c("blue", "black"), ylim=lims, lty=c(1))
-        for(j in 2:n_series) lines(ts(processes[[j]][(i-50):i]), col=cols_[[j-1]])
+        ts.plot(ts(y[[1]][(i-50):i]), line=0, col=c("blue", "black"), ylim=lims, lty=c(1))
+        for(j in 2:n_series) lines(ts(y[[j]][(i-50):i]), col=cols_[[j-1]])
         title("Comparing time series processes")
         legend("bottomleft", legend=model_names,
                col=c("blue", "red"), lty=c(1), cex=1.2, bty="n", box.lty=1)
       } else {
         lims <- c(min(limits[1:i,1]), max(limits[1:i,2]))
-        ts.plot(ts(processes[[1]][1:i]), line=0, col=c("blue", "black"), ylim=lims, lty=c(1))
-        for(j in 2:n_series) lines(ts(processes[[j]][1:i]), col=cols_[[j-1]])
+        ts.plot(ts(y[[1]][1:i]), line=0, col=c("blue", "black"), ylim=lims, lty=c(1))
+        for(j in 2:n_series) lines(ts(y[[j]][1:i]), col=cols_[[j-1]])
         title("Comparing time series processes")
         legend("bottomleft", legend=model_names,
                col=c("blue", "red"), lty=c(1), cex=1.2, bty="n", box.lty=1)
@@ -93,15 +90,15 @@ simulator <- function(n, models, errors, speed, irf){
     for(i in 1:n){
       if(i>100){
         lims <- c(min(limits[(i-100):i,1]), max(limits[(i-100):i,2]))
-        ts.plot(ts(processes[[1]][(i-100):i]), line=0, col=c("blue", "black"), ylim=lims, lty=c(1))
-        for(j in 2:n_series) lines(ts(processes[[j]][(i-100):i]), col=cols_[[j-1]])
+        ts.plot(ts(y[[1]][(i-100):i]), line=0, col=c("blue", "black"), ylim=lims, lty=c(1))
+        for(j in 2:n_series) lines(ts(y[[j]][(i-100):i]), col=cols_[[j-1]])
         title("Comparing time series processes")
         legend("bottomleft", legend=model_names,
                col=c("blue", cols_), lty=c(1), cex=1.2, bty="n", box.lty=1)
       } else {
         lims <- c(min(limits[1:i,1]), max(limits[1:i,2]))
-        ts.plot(ts(processes[[1]][1:i]), line=0, col=c("blue", "black"), ylim=lims, lty=c(1))
-        for(j in 2:n_series) lines(ts(processes[[j]][1:i]), col=cols_[[j-1]])
+        ts.plot(ts(y[[1]][1:i]), line=0, col=c("blue", "black"), ylim=lims, lty=c(1))
+        for(j in 2:n_series) lines(ts(y[[j]][1:i]), col=cols_[[j-1]])
         title("Comparing time series processes")
         legend("bottomleft", legend=model_names,
                col=c("blue", cols_), lty=c(1), cex=1.2, bty="n", box.lty=1)
@@ -110,9 +107,6 @@ simulator <- function(n, models, errors, speed, irf){
       Sys.sleep(refresh)
     }
   }
-  
-  
-  par(mfrow=c(1,1))
 }
 
 
@@ -142,6 +136,7 @@ simulator(n=10000,                   # How many periods to simulate
           models=model_list,         # Pre-specified list of models to compare
           errors="fat",              # Distribution of the error term: "normal", "fat" or "uniform"
           speed="fast",              # Speed of simulation: "fast" or "slow"
-          irf=FALSE)                 # Impulse Responses: TRUE or FALSE
+          irf=FALSE)                     # Impulse Responses: TRUE or FALSE
 
 dev.off()
+
