@@ -14,7 +14,7 @@ frog_jump <- function(stones, n, show=TRUE){
     
     for(i in 1:n){
         current <- 0
-        counter[[i]] <- 0
+        counter[i] <- 0
         not_finished <- T
         
         while(not_finished){
@@ -22,7 +22,7 @@ frog_jump <- function(stones, n, show=TRUE){
             jump <- sample(stones_left,1)
             current <- current + jump
             
-            counter[[i]] <- counter[[i]] + 1
+            counter[i] <- counter[i] + 1
             
             if(current >= stones) break        
         }
@@ -49,7 +49,7 @@ pb <- txtProgressBar(min = 0, max = max_stones, style = 3)
 averages <- c(NA)
 
 for(k in 1:max_stones) {  
-  averages[[k]] <- frog_jump(stones = k, n = 2000, show=FALSE)
+  averages[k] <- frog_jump(stones = k, n = 2000, show=FALSE)
   setTxtProgressBar(pb, k)
 }
 
