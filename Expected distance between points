@@ -11,14 +11,14 @@ length_between_random_points <- function(dim, n, show=TRUE){
         vector2 <- runif(dim, min=0, max=1)
         
         dist <- c(NA)
-        dist[[1]] <- vector1[[1]] - vector2[[1]]
+        dist[1] <- vector1[1] - vector2[1]
         
         # Apply Pythagoras' rule to two consecutive dimensions in a row
         for(k in 2:dim){
-            dist[[k]] <- sqrt((vector1[[k]] - vector2[[k]])^2 + dist[[k-1]]^2)
+            dist[k] <- sqrt((vector1[k] - vector2[k])^2 + dist[k-1]^2)
         }
         
-        distances[[i]] <- dist[[dim]]
+        distances[i] <- dist[dim]
     }
     
     average_distance <- mean(distances)
@@ -40,7 +40,7 @@ length_between_random_points(dim=3, n=10000)
 results <- c(NA)
 
 for(j in 2:100) {
-  results[[j]] <- length_between_random_points(dim=j, n=1000, show=FALSE)
+  results[j] <- length_between_random_points(dim=j, n=1000, show=FALSE)
 }
 
 ts.plot(results)
@@ -51,7 +51,7 @@ length_between_random_points(dim=2, n=10000)
 results <- c(NA)
 
 for(j in 2:100) {
-  results[[j]] <- length_between_random_points(dim=j, n=1000, show=FALSE)
+  results[j] <- length_between_random_points(dim=j, n=1000, show=FALSE)
 }
 
 ts.plot(results)
