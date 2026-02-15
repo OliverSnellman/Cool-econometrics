@@ -29,7 +29,6 @@
 
 % Set margins
 \usepackage[a4paper, left=3cm, right=3cm, top=3cm, bottom=3cm]{geometry}
-\usepackage[utf8]{inputenc}
 
 % For math
 \usepackage{amsmath}
@@ -37,12 +36,17 @@
 %\usepackage[bottom]{footmisc}
 
 % For attaching figures
+\usepackage{graphicx}
 \usepackage{float}
 
 % For drawing graphs
 \usepackage{tikz}
 \usetikzlibrary{arrows,automata,shapes,calc}
 \usetikzlibrary{intersections,positioning}
+
+% References
+\usepackage[style=authoryear, backend=biber]{biblatex}
+\addbibresource{references.bib}
 
 % Add hyperlinks and choose colors
 \usepackage{hyperref}
@@ -128,7 +132,7 @@ to gain the desired result. Add footnotes with\footnote{And write the text here.
 
 \section{Literature}
 
-Create a separate file in the leftmost third panel and name the file references.bib. Copy-paste bibtex-references (from ideas repec etc.) to that file and cite them using \cite{paperName}. The citation appears in the text and the paper is added to the References. You don't need to keep track of whether there is 1 to 1 mapping between the citations and references.
+Create a separate file in the leftmost third panel and name the file references.bib. Copy-paste bibtex-references (from ideas repec etc.) to that file and cite them using \cite{paperName} creating (Virtanen 2023) and \textcite{paperName} creating Virtanen (2023). The citation appears in the text and the paper is added to the References. You don't need to keep track of whether there is 1 to 1 mapping between the citations and references.
 
 Let's add a subsection
 
@@ -162,7 +166,7 @@ Or
          \hline
          Jussy   &  24 & Lentäminen \\
          \hline
-         Katrie  & ?  & Selvänäkö  \\
+         Katrie  & 67  & Selvänäkö  \\
          \hline
          Carmen  & 12  & Matikka    \\
          \hline
@@ -204,7 +208,7 @@ Upload your figure in the leftmost third panel and add the filename below.
 
 \begin{figure}[H]
     \centering
-    \includegraphics{fileName.png}
+    \includegraphics[width=0.8\textwidth]{example-image.png}
     \caption{Write your caption here}
     \label{fig:my_label}
 \end{figure}
@@ -260,7 +264,6 @@ Draw flow-charts using the automata environment.
 
 Finally, add the references with the following commands
 
-\bibliographystyle{agsm}
-\bibliography{references}
+\printbibliography
 
 \end{document}
