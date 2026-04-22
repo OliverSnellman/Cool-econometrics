@@ -209,4 +209,8 @@ A hands-on LaTeX tutorial/template for writing a thesis or paper. Includes examp
 
 ## Note
 
-This repository is an archive rather than a polished textbook. The documents are shared as-is, with the hope that the notes, simulations, and side projects are useful to students, teachers, and curious readers.
+This reporitory is my personal archive of non-peer-reviewed papers, study materials, side projects and programming tools. Some of the documents were produced as a teaching assistant and they might build upon material prepared by others. 
+Feel free to use and share these documents.
+
+Oliver Snellman
+18.2.2022
