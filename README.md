@@ -123,9 +123,6 @@ In this document I walk through visually the process of encrypting a message wit
 
 Muscle growth or hypertrophy occurs, when you send a signal to the body through resistance training, declaring that the current muscles are inadequate. As a response, protein is used to recover and improve the contracting filament -structure in the damaged muscle cells during the following days of rest. This document gives an overview of both the practicalities and the interesting cellular biology involved in the process.
 
-### Profile
-
-#### [CV](CV_Snellman.pdf)
 
 
 ### Simulations and Other Tools
@@ -154,3 +151,13 @@ Have you always wondered, what is the expected distance between two random point
 
 The aim of this document is to provide you with a LaTeX-template, with most of the common features and instructions on how to use them, so that you can successfully write your Master's thesis with LaTeX. To use my template, copy-paste the content into an empty Overleaf script. LaTeX is a document preparation system and a competitor of Word. It is very popular among quantitative scientists, because it makes writing equations enjoyable and aesthetic, among its many other benefits. Most of the pdf-documents on this page were produced with LaTeX.
 
+
+### Profile
+
+#### [CV](CV_Snellman.pdf)
+
+## Licensing
+
+Most original documents in this repository are available for reuse and adaptation with attribution. Small code tools are licensed separately under MIT, and the CV is excluded from the open license grant.
+
+See [LICENSES.md](LICENSES.md) for the full file-by-file breakdown.
