@@ -1,59 +1,23 @@
 # Cool Econometrics
 
-Personal archive of non-peer-reviewed papers, study materials, simulations, and small programming tools. Some documents were produced while working as a teaching assistant and may build on material prepared by others.
-
+This reporitory is my personal archive of non-peer-reviewed papers, study materials, side projects and programming tools. Some of the documents were produced as a teaching assistant and they might build upon material prepared by others. 
 Feel free to use and share these documents.
 
 Oliver Snellman
+18.2.2022
 
-## Documents
 
-| Document | Theme |
-| --- | --- |
-| [AD-AS model](AD_AS_model.pdf) | Macroeconomic teaching note |
-| [Are Werewolves Vegan?](Are_Werewolves_Vegan.pdf) | Logic, implication, and Hempel's raven |
-| [Bounds](Bounds.pdf) | Econometric treatment bounds |
-| [Correlation vs Regression](Correlation_vs_Regression.pdf) | Visual intuition for linear association |
-| [Ergodicity](Ergodicity.pdf) | Time averages, ensemble averages, and stochastic processes |
-| [Friedman's Thermostat](Friedmans_thermostat.pdf) | Monetary policy identification analogy |
-| [Hypertrophy](Hypertrophy.pdf) | Training and physiology note |
-| [Income and Substitution Effects](Income_and_substitution_effects.pdf) | Microeconomic consumer theory |
-| [Introduction to Cryptography](Introduction_to_Cryptography.pdf) | Build-your-own encryption intuition |
-| [Introduction to Transformers in Macroeconomics](Introduction_Transformers_macroeconomics.pdf) | Transformer networks for sequential macro data |
-| [Limited Dependent Models](Limited%20dependent%20models.pdf) | Binary outcomes, latent variables, and marginal effects |
-| [Monetary Policy Model](Monetary_policy_model.pdf) | Three-equation macro model |
-| [OLG Model](OLG_model.pdf) | Overlapping generations, pensions, and dynamic efficiency |
-| [Panel Data](Panel_data.pdf) | Fixed effects, random effects, and panel structure |
-| [Process x](Process_x.pdf) | Heavy tails and non-converging sample means |
-| [Regression with Matrices](Regression_with_matrices.pdf) | Matrix notation for OLS |
-| [Risk Aversion](Risk_aversion.pdf) | Expected value, utility, and risk premia |
-| [Time Series Models](Time_series_models.pdf) | AR, MA, ARMA, and GARCH processes |
-| [Tobin's Q](Tobin's%20Q.pdf) | Investment volatility and firm valuation |
-| [Yule-Walker Equations](Yule_Walker.pdf) | Estimating autoregressive processes |
-| [CV](CV_Snellman.pdf) | Current CV |
-
-## Programming Tools and Templates
-
-| Tool | What it does |
-| --- | --- |
-| [Expected distance between points](Expected%20distance%20between%20points) | Simulates distances between random points in high-dimensional unit boxes. |
-| [Frog jump simulator](Frog%20jump%20simulator) | Simulates a probability puzzle about random jumps across stones. |
-| [Game of Life](Game%20of%20Life) | R implementation of Conway's Game of Life, including a glider gun setup. |
-| [Monty Hall problem simulator](Monty%20Hall%20problem%20simulator) | Simulates switching and not switching strategies in the Monty Hall problem. |
-| [Simulate time series processes](Simulate%20time%20series%20-processes) | Compares AR, MA, ARMA, GARCH, and ARMA-GARCH paths under common shocks. |
-| [How to write your Thesis with LaTeX](How%20to%20write%20your%20Thesis%20with%20LaTeX%20-tutorial) | A LaTeX thesis/tutorial template with equations, figures, references, and layout examples. |
-
-## Guided Catalog
+## Catalog
 
 ### Econometrics and Statistics
 
 #### [Regression with Matrices](Regression_with_matrices.pdf)
 
-A compact introduction to writing regression problems in matrix form. The note shows how systems of equations and matrix notation describe the same linear model.
+Introduction to writing regression problems in matrix form. The note shows how systems of equations and matrix notation describe the same linear model.
 
 #### [Correlation vs Regression](Correlation_vs_Regression.pdf)
 
-A visual explanation of how correlation and regression coefficients are related. Correlation $\rho_{X,Y} = \frac{E[(X-\mu_X)(Y-\mu_Y)]}{\sigma_X\sigma_Y}$ measures normalized co-movement; regression $\hat{\beta} = (X'X)^{-1}X'y$ measures the slope of a conditional linear prediction.
+Correlation and regression coefficients both describe a certain type of relation between two variables. Here I provide a visual intuition on how they differ.
 
 
 #### [Panel Data](Panel_data.pdf)
@@ -81,55 +45,50 @@ An introduction to sequentially ordered random variables and the basic processes
 
 #### [Yule-Walker Equations](Yule_Walker.pdf)
 
-A note on estimating autoregressive parameters from empirical autocovariances and autocorrelations. Useful as a bridge between time-series theory and actual AR estimation.
-
+Walkthrough (advanced) of equations, which are used to estimate the autoregressive parameters and error variances of an AR(p) process, based on the empirical autocovariances and autocorrelations.
 
 #### [Ergodicity](Ergodicity.pdf)
 
-A conceptual note on when the average across many simulated worlds tells us something about one long-run path. The central contrast is between ensemble averages and time averages.
+A notebook showing how the average over different outcomes of an activity can give you false information on what to expect if you take part in the activity yourself.
 
-Key idea:
+A system is ergodic, when:
 
 $$
-\frac{1}{N}\sum_{i=1}^{N} X_t^{(i)}
-\quad \text{versus} \quad
-\frac{1}{T}\sum_{t=1}^{T} X_t^{(i)}
+\frac{1}{N}\sum_{i=1}^{N} X_i(t)
+\quad = \quad
+\frac{1}{T}\sum_{t=1}^{T} X_t(i)
 $$
 
 #### [Process x](Process_x.pdf)
 
-An exploration of how non-convergence can look like when the issue is not exploding variance.
+An example of a process with finite variance but non-converging mean.
 
 
 ### Macroeconomics
 
 #### [AD-AS Model](AD_AS_model.pdf)
 
-A step-by-step derivation of the aggregate demand and aggregate supply framework, moving from Keynesian cross logic to IS-LM/TR, New Keynesian demand, and staggered-wage supply.
-
+The AD-AS model is a pedagogical tool, which uses graphical analysis to build qualitative intuitions about the macro-economy. In this document I show how to derive the model step by step, starting from the Keynes Cross model to get to the IS-LM/TR model, from which the demand side AD curve arises from. I also derive the microfounded New Keynesian AD relation from household's problem. Finally, I derive the supply side AS curve using staggered wage setting.
 
 #### [Monetary Policy Model](Monetary_policy_model.pdf)
 
-A derivation of the three-equation macro model: IS curve, Phillips curve, and monetary-rule curve. The note emphasizes short-run stabilization, central bank behavior, and adaptive expectations.
-
+In this document I derive another version of the AD-AS model, which focuses on the role of the Central Bank (CB) and monetary policy on stabilizing the economy over the short run business cycle. The model consists of the IS curve describing the demand side, Phillips curve for the supply side and the MR curve for the policymaker (CB). Households and wage setters have adaptive expectations, whereas the CB has rational expectations.
 
 #### [Friedman's Thermostat](Friedmans_thermostat.pdf)
 
-An explanation of Friedman's thermostat analogy for monetary policy. The note highlights why policy can appear ineffective in naive regressions when the policy instrument is actively stabilizing the target variable.
+A visual intuition to the endogeneity problem, with a practical example.
 
 #### [Tobin's Q](Tobin's%20Q.pdf)
 
-A note on why investment is more volatile than GDP and how Tobin's Q connects firm valuation, expected profits, and the timing of capital investment.
-
+Short recap of the model of investments.
 
 #### [OLG Model](OLG_model.pdf)
 
-Solves the overlapping generations model step by step, then connects the model to dynamic inefficiency and pension-system comparisons between fully funded and pay-as-you-go designs.
-
+In these notes I first analytically solve the heterogenous agent OLG model step by step, followed by a short conversation about dynamic inefficiency, and finish by comparing the efficiency of the two common pension systems, fully funded and pay as you go.
 
 #### [Introduction to Transformers in Macroeconomics](Introduction_Transformers_macroeconomics.pdf)
 
-A high-level visual introduction to transformer networks for macroeconomic sequence data. The note connects attention-based machine learning to the special structure of economic time series.
+Non-technical overview of my PhD dissertation, emphasizing visual intuition on using transformer networks for macroeconomic sequence data. The material shows how to use attention-based machine learning to estimate and interpret latent structures form small time series datasets.
 
 Attention mechanism:
 
@@ -141,76 +100,57 @@ $$
 
 #### [Income and Substitution Effects](Income_and_substitution_effects.pdf)
 
-A teaching note on how households respond when prices, wages, taxes, or relative returns change. The focus is on separating substitution effects from income effects.
+A teaching note on how does changes in income or prices affect consumption decisions?
 
 
 #### [Risk Aversion](Risk_aversion.pdf)
 
-Introduces expected value, concave utility, and the idea of a risk premium. The examples explain why a gamble's expected payoff is not enough to determine whether people want to accept it.
+Introduces expected value, concave utility, and the idea of a risk premium. The examples explain why a gamble's expected payoff is not enough to determine whether people want to accept it or not.
 
 
 ### Logic, Computation, and Curiosities
 
 #### [Are Werewolves Vegan?](Are_Werewolves_Vegan.pdf)
 
-A note about material implication, Hempel's raven, and how badly defined propositions can create paradoxes.
+I first introduce the concept of implication in propositional logic, then present a puzzling consequence of it called Hempel’s paradox and provide an intuition for why it is not really a paradox. Lastly, I point attention to a situation where the paradox does arise, due to poorly defined propositions.
 
 
 #### [Introduction to Cryptography](Introduction_to_Cryptography.pdf)
 
-An introduction to encryption and decryption through the lens of building a simple encryption algorithm.
+In this document I walk through visually the process of encrypting a message with a simple example. Why is it not possible to "crack the code" of modern encryption algorithms? Because they use pseudo-randomness to break the one-to-one mapping between the message and coded message. Even with full understanding of the functioning of an encryption algorithm, the encrypted message cannot be recovered without a private key, which allows reversing the pseudo-randomness.
 
 #### [Hypertrophy](Hypertrophy.pdf)
 
-An introduction to muscle growth.
+Muscle growth or hypertrophy occurs, when you send a signal to the body through resistance training, declaring that the current muscles are inadequate. As a response, protein is used to recover and improve the contracting filament -structure in the damaged muscle cells during the following days of rest. This document gives an overview of both the practicalities and the interesting cellular biology involved in the process.
 
 ### Profile
 
 #### [CV](CV_Snellman.pdf)
 
 
-### Simulations and Small Tools
+### Simulations and Other Tools
 
 #### [Simulate time series processes](Simulate%20time%20series%20-processes)
 
-An R simulator for comparing AR, MA, ARMA, GARCH, and ARMA-GARCH processes under shared shocks. Useful for building intuition about how identical innovations propagate through different models.
+This simulator enables comparison of different time series processes, i.e. how identical shocks propagate differently in AR(1), MA(1), ARMA(1,1), GARCH(1,1) and ARMA-GARCH(1,1,1,1) models. If option IRF is specified as TRUE, then there is only one unit sized shock every 50 periods, otherwise the shocks are drawn randomly at each period from the specified distribution; normal, uniform or t-distribution (with df=10).  Coded in base R.
 
 #### [Game of Life](Game%20of%20Life)
 
-An R implementation of Conway's Game of Life with both random initialization and a glider gun example.
+This R-code simulates the cellular automata, coined as The Game of Life by the mathematician John Conway. The Game of Life follows an iterative deterministic process based on simple rules, creating incredible and beautiful complexity. The starting configuration can be randomized or set by the user, alongside of the size of the arena.
 
 #### [Monty Hall problem simulator](Monty%20Hall%20problem%20simulator)
 
-Simulates repeated Monty Hall games and compares the win rates from switching versus staying.
-
-Key result:
-
-$$
-P(\text{win by switching}) = \frac{2}{3}
-$$
+In a famous probability puzzle you partake in Monty Hall game-show, where there are three doors from which you have to guess the correct one. After your initial guess the host (who knows which door holds the price) opens one of the remaining wrong ones, asking then "Would you like to change your pick to the remaining closed door?" Here is what makes this a puzzle: Sticking to your initial guess yields the prize 33% of the time, but changing the choice wins 66% of the time! The reason is that 66% of the time you choose wrong initially, leaving only the correct door left after the host's actions. But you don't need to take my word for it! Use my R-code to simulate as many Monty Hall games as you wish, and observe how many of them each strategy ends up winning. David Deutsch also had a brilliant comment on the matter: Monty Hall is not a Bayesian updating problem, but instead a (trivial) choice problem between two strategies (https://www.daviddeutsch.org.uk/2013/10/monty-hall-problem/).
 
 #### [Frog jump simulator](Frog%20jump%20simulator)
 
-Simulates a river-crossing puzzle where each jump is chosen randomly from the remaining stones. The output shows the distribution and average number of jumps.
+This is a good example of the power of numeric (in contrast to analytic) approach to problem solving. Stand-up Maths (youtube-channel) explains an interesting probability puzzle: Frog crosses a river with 10 consecutive stones by jumping from a stone to another. The frog chooses randomly, to which of the remaining stones it jumps to. So at minimum, the crossing can be completed in one hop. At maximum, the frog visits each stone in order. What is the average number of jumps to cross this river? How does the average relate to the number of stones in the river? This is a hard problem to solve with a pen and paper, but it only took me 20 minutes to code a simulator, in which a frog crosses the river 100 000 times, resulting in an average of 2,9 jumps. This is a powerful shortcut to the answer, and can help you develop intuition about the problem. Can you figure out the relation between the average number of jumps and the total number of stones by using my R-simulator?
 
 #### [Expected distance between points](Expected%20distance%20between%20points)
 
-Approximates the expected distance between two random points in a unit box as dimension increases.
-
-Key object:
-
-$$
-E[\|X-Y\|_2], \qquad X,Y \sim U([0,1]^d)
-$$
+Have you always wondered, what is the expected distance between two random points in a unit square? What about the distance between two vectors in a (hyper)cube, with each side equal to one? Wait no more! With my R-code you can approximate the answer for any dimensions arbitrarily accurately! Fun thing to notice is that as the dimensions increase, the average distance between the points also increases monotonically without an upper limit, despite each side of the box having unit length.
 
 #### [How to write your Thesis with LaTeX](How%20to%20write%20your%20Thesis%20with%20LaTeX%20-tutorial)
 
-A hands-on LaTeX tutorial/template for writing a thesis or paper. Includes examples for document structure, equations, figures, TikZ, hyperlinks, and bibliographic references.
+The aim of this document is to provide you with a LaTeX-template, with most of the common features and instructions on how to use them, so that you can successfully write your Master's thesis with LaTeX. To use my template, copy-paste the content into an empty Overleaf script. LaTeX is a document preparation system and a competitor of Word. It is very popular among quantitative scientists, because it makes writing equations enjoyable and aesthetic, among its many other benefits. Most of the pdf-documents on this page were produced with LaTeX.
 
-## Note
-
-This reporitory is my personal archive of non-peer-reviewed papers, study materials, side projects and programming tools. Some of the documents were produced as a teaching assistant and they might build upon material prepared by others. 
-Feel free to use and share these documents.
-
-Oliver Snellman
-18.2.2022
