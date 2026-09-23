@@ -1,0 +1,192 @@
+<!--
+banking_intro.Rmd - child document, no YAML header.
+Include from index.Rmd with a chunk (wrap it in the usual three-backtick fence):
+      {r, child="banking_intro.Rmd"}
+(Written here without backticks on purpose: a real fenced chunk inside this
+comment would make the file include itself and knitting would never finish.)
+
+Expected files next to index.Rmd:
+  figures_banking/stage1_barter.png
+  figures_banking/stage2_money.png
+  figures_banking/stage3_lending.png
+  figures_banking/stage4_bank.png
+  figures_banking/bank_bare_minimum.png
+  figures_banking/bank_fractional_50.png
+  figures_banking/bank_modern.png
+  banking_systems_interactive.html   (for the interactive demo iframe)
+
+PNGs are used because the site knits to HTML; browsers do not render PDF
+images inside a page. The PDFs/SVGs exist too if you ever knit to LaTeX.
+-->
+
+```{r banking-setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, out.width = "100%", fig.align = "center")
+
+banking_escape_html <- function(x) {
+  x <- gsub("&", "&amp;", x, fixed = TRUE)
+  x <- gsub("<", "&lt;", x, fixed = TRUE)
+  x <- gsub(">", "&gt;", x, fixed = TRUE)
+  gsub('"', "&quot;", x, fixed = TRUE)
+}
+
+include_banking_graphics <- function(path) {
+  fixed_path <- sub("\\.svg$", "_mobile.svg", path)
+  caption <- knitr::opts_current$get("fig.cap")
+  caption_html <- banking_escape_html(caption)
+  fixed_uri <- base64enc::dataURI(file = fixed_path, mime = "image/svg+xml")
+
+  knitr::asis_output(sprintf(
+    paste0(
+      '<figure class="banking-figure">',
+      '<picture>',
+      '<img src="%s" alt="%s">',
+      '</picture>',
+      '<figcaption class="caption">%s</figcaption>',
+      '</figure>'
+    ),
+    fixed_uri, caption_html, caption_html
+  ))
+}
+```
+
+<style>
+#money-and-banks .banking-figure {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 0 1.5em;
+}
+
+#money-and-banks .banking-figure picture,
+#money-and-banks .banking-figure img {
+  display: block;
+  width: 360px !important;
+  max-width: 100% !important;
+  height: auto;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+#money-and-banks .banking-figure .caption {
+  width: 100%;
+  margin-top: 0.75em;
+  text-align: center;
+}
+
+#money-and-banks .banking-explorer {
+  display: block;
+  width: 360px !important;
+  max-width: 100%;
+  height: 620px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+@media (max-width: 767px) {
+  #money-and-banks .banking-explorer {
+    height: 620px;
+  }
+}
+
+#money-and-banks p {
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+}
+</style>
+
+# Money and Banks
+Oliver Snellman, September 2026
+
+
+The aim of this writing is to provide an introduction to the modern banking system, by walking through the basic steps that gave rise to it: Collaboration, money as a distributed ledger of contributions, loans as trust in future value creation, and banks as an intermediary that transforms the properties of typical savings into typical loans. Finally, the regulator (Central Bank) sets a reserve ratio, fraction of deposits to keep at hand to make daily banking smooth, and a capital ratio, fraction of loans that has to be backed up with bank's own money as a risk buffer. At the end there is an interactive tool that let's you see what happens to a bank's balance sheet when these ratios are changed.
+
+
+## Cooperation: ledger of contributions
+
+People work, save and spend what they individually produce. Think of self-sustaining families or hunter-gatherer groups. Trade is direct and bilateral: a barrel of ale against a sack of grain, settled on the spot. A trade requires a *double coincidence of wants*, both parties must want what the other has at the same time, so trading connections are few and some households are left outside. As a thought experiment, imagine that all of these trades are documented in a *ledger*.
+
+```{r fig-stage1, fig.cap="A trade happens only when both parties want what the other has, right now. This double coincidence is rare: few connections form and some stay outside trade."}
+include_banking_graphics("figures_banking/stage1_barter.svg")
+```
+
+### Money: distributed ledger
+
+The ledger can be used to improve the situation, so that trade runs in *cycles*. The ledger documents how much value a person produced for another person in the same group with trade.
+This makes it possible that A serves B, B serves C, and C serves A.
+
+*Money* emerges as a distributed representative of this ledger: Instead everyone having to travel to the town square to see the ledger prior to trade, each person carries the value of their previous entries as cash. Every bill or ounce of gold says, in effect: *the holder of this bill has benefitted the group by one unit*. Accepting a bill as payment is the same as documenting into the ledger that you provided utility to someone. Free trade lets supply and demand set the relative value of everyone's output, reflected by the allocation of cash that results from continued trade. The coincidence of needs is no longer needed, so one-way trades appear everywhere and even those who found no partner earlier can now join to benefit the network.
+
+There is not yet borrowing here, so you can only spend what you have already contributed. One unit of cash can be owned and spent by only one person at a time. A worker might afford a house at 70; businesses stay small because purchasing power arrives only after the work; and since it takes a generation to accumulate anything, inheritance builds dynasties.
+
+```{r fig-stage2, fig.cap="Cash is a portable entry of the shared ledger: trade runs in cycles and everyone joins. But you can only spend what you have already contributed."}
+include_banking_graphics("figures_banking/stage2_money.svg")
+```
+
+### Loans: trust in future contributions
+
+Borrowing money means spending *future* ledger entries you have yet to make. Savers let you use entries they have already earned, trusting that you will benefit the group later, according to your potential and promises. Benefits can now precede the work: houses are bought young, and large projects that pay off only in the future can begin.
+
+*Lending means Money > Cash.* Introducing loans into the picture means that the concept of money expands beyond cash. Consider a situation where D lends a coin to A, and gets a paper in return stating that "A will give a coin to owner of this paper tomorrow". Some interest is typically also required. The loan paper has value and it could be sold forward to E, so it is also a form of money. A could also lend the coin forward to B and B to C, creating new loan contracts. Afterwards there can be multiple people possessing value that derive from the same coin. Whereas a coin (cash) can be possessed only by one person at a time, new loan contracts can be created almost arbitrarily. Therefore the money multiplier emerges as a phenomenon already at this stage, without any banks, central bank, or the fractional reserve system.
+
+Direct saver-to-borrower loans have a matching problem: sizes, time horizons and risk appetites rarely line up, so many willing savers and borrowers stay unmatched.
+
+```{r fig-stage3, fig.cap="Lending means spending your future ledger entries, on trust, out of someone's savings. But saver and borrower rarely match in size, timing and risk, so many stay unmatched."}
+include_banking_graphics("figures_banking/stage3_lending.svg")
+```
+
+### Banks mediate lending
+
+A bank steps in between to pool money from savers on one side and lends to borrowers on the other. In the middle it performs three transformations: **size** transformation combines many small deposits into few large loans, **maturity** transformation turns short-term deposits into loans that run for decades, and **risk** transformation distributes direct default risk across. The bank's price for this is the interest rate on loans.
+
+```{r fig-stage4, fig.cap="The bank pools many small, short-term deposits into large, long-term loans, transforming size, maturity and risk in between, for a margin. Each loan writes two ledger entries at once, new money to spend and new debt to work off, which is how the money supply can grow."}
+include_banking_graphics("figures_banking/stage4_bank.svg")
+```
+
+
+## How banks work
+
+A bank is best understood through its **balance sheet**. The left side (*assets*) lists what the bank can do with what it owns: keep money safe in reserve, or issue risky loans that pay interest. The right side lists *claims* on the bank: customers claim their deposits and lenders claim their borrowed funds. *Capital* is the bank's owners' claim, for whatever profits are left of the assets after depositors and lenders are paid in full. The two sides of the balance sheet must always match in size.
+
+The regulator sets two important ratios. *Reserve ratio* dictates how much reserves must a bank keep as a fraction of the deposits it holds, to make daily banking smooth for customers. *capital ratio* dictates how much capital must the bank have in relation to loans it gives out as a risk buffer. When loans default, the capital absorbs the losses first.
+
+### Minimal bank
+
+The starting point bank only *safeguards deposits* and *lends its own cash*. Every deposit can be withdrawn at any moment and if every loan defaults, only the bank's own money is lost. The bank does not create money. New money appears only when gold is mined or the Central Bank issues more new notes.
+
+```{r fig-bare-minimum, fig.cap="Minimum banking: deposits sit safe in the vault and the bank lends only its own money. New money appears only when gold is mined or the CB prints notes."}
+include_banking_graphics("figures_banking/bank_bare_minimum.svg")
+```
+
+### Fractional reserve
+
+Keeping all deposits sitting idle in the vault is inefficient. Relaxing the 100% reserve
+requirement lets the bank lend a fraction of the depositors' cash onwards. The reserve ratio is kept above zero (here 50%) to guarantee that deposits can be withdrawn on demand. Now the loan pool becomes larger than capital, so the capital ratio also falls below 100% (here 40%).
+
+If loans default, capital absorbs the losses only up to a point. Beyond that some deposits are lost. The fear of this can trigger a *bank run*, which is why an adequate capital ratio is maintained as a risk buffer.
+
+*Digital money* is writings or bits on the bank system. The amount of cash money in the economy is not the same as the combined digital money (deposits). Let person A hold 1€ in deposits and the bank lends the coin forward to B. When person B deposits the coin at some bank, then there are two 1€ deposits but still just the one coin. Amount of money grows as loans create new deposits, up to a point. New *cash* (coins and bills) still only comes from the Central Bank's printing press, and the value of cash is linked to new gold findings.
+
+```{r fig-fractional-50, fig.cap="Fractional reserve banking: the bank lends part of depositors' cash onwards. New cash still comes only from gold or the printing press."}
+include_banking_graphics("figures_banking/bank_fractional_50.svg")
+```
+
+### The modern system
+
+Money is nowadays mostly digital (not cash) and the ratios are far more extreme: 10 % capital ratio and 1% reserve ratio. This makes money fungible: it does not make sense to ask *which* deposited dollar was lent forward, as they are all just bits on a server. Instead, the bank creates new digital money to the borrower's account when it issues a loan. Every new loan increases the money supply, and every repayment shrinks it. The regulator distributes bank licences and monitors their behavior.
+
+The upper limit to loans a bank can issue is determined by the amount of capital the bank has, and the capital ratio requirement. But for every loan the bank wants to give out, it also has to have an equivalent amount in either deposits or loans. In other words, the bank can borrow from people cheaply (deposits), or from institutions expensively (loans), to give out even more expensive loans.
+
+The modern *fiat* system has removed the link between cash and gold. The value of money, and the exchange rates across currencies, float based on supply and demand. The anchor of the system is a Central Bank with a believable inflation target.
+
+The central bank constrains the pace of money/loan creation through capital requirement and by setting an interest rate on reserves. The interest rate incentivises banks not to keep more or less money as reserves (beyond the minimum requirement), changing their incentives and ability to issue loans. The reserve requirement does not bind lending anymore.
+
+
+```{r fig-modern, fig.cap="The modern system: every new loan creates an equal amount of new money and repayment destroys it. The CB constrains money creation with capital requirements and the interest rate on reserves."}
+include_banking_graphics("figures_banking/bank_modern.svg")
+```
+
+### Create your own banking system
+
+Drag the bottom edge of the **Reserves** block up to change the reserve ratio, or the bottom edge of the **Capital** block down to add borrowed funding. The texts explain the system as you change it.
+
+<iframe class="banking-explorer" src="banking_systems_interactive.html" width="100%" height="660" style="border:none;"></iframe>
